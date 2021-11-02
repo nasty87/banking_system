@@ -1,10 +1,9 @@
 package example.banking_system.services;
 
-import example.banking_system.models.Role;
-import example.banking_system.models.RoleDao;
-import example.banking_system.models.UserEntity;
-import example.banking_system.models.UserDao;
+import example.banking_system.controllers.InvalidParameterException;
+import example.banking_system.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,11 +23,11 @@ public class UserService implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     @Transactional
-    public boolean saveUser(UserEntity user, String roleName) {
+    public void saveUser(UserEntity user, String roleName) throws InvalidParameterException {
         UserEntity userFromDB = userDao.findUserByLogin(user.getUsername());
 
         if (userFromDB != null) {
-            return false;
+            throw new InvalidParameterException();
         }
         Role role = roleDao.getRoleByName(roleName);
         if (role != null) {
@@ -36,7 +35,6 @@ public class UserService implements UserDetailsService {
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userDao.addUser(user);
-        return true;
     }
 
     @Transactional
@@ -50,6 +48,25 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
+    public void addUser(UserDto user) throws InvalidParameterException {
+        UserEntity newUser = new UserEntity();
+        newUser.setName(user.getName());
+        newUser.setLogin(user.getLogin());
+        newUser.setPassword(user.getPassword());
+
+        for (AccountDto account : user.getAccounts()) {
+            AccountEntity accountEntity = new AccountEntity();
+            accountEntity.setAccountNumber(account.getAccountNumber());
+            accountEntity.setBalance(account.getBalance());
+            accountEntity.setCreationDate(account.getCreationDate());
+            accountEntity.setUser(newUser);
+            newUser.getAccounts().add(accountEntity);
+        }
+
+        saveUser(newUser, user.getRoleName());
+    }
+
+    @Transactional
     public UserEntity findByLoginAndPassword(String login, String password) throws UsernameNotFoundException {
         UserEntity user = userDao.findUserByLoginAndPassword(login, password);
         if (user == null) {
@@ -57,4 +74,16 @@ public class UserService implements UserDetailsService {
         }
         return user;
     }
+
+    @Transactional
+    public UserEntity getCurrentUser() {
+        String currentUserName = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userDao.findUserByLogin(currentUserName);
+    }
+
+    @Transactional
+    public boolean userHasBankRole(UserEntity user) {
+        return user.getRoleName().equals(Role.BankRoleName);
+    }
+
 }

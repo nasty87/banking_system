@@ -11,6 +11,10 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 public class Role implements GrantedAuthority {
+    public static final String AdminRoleName = "ROLE_ADMIN";
+    public static final String BankRoleName = "ROLE_BANK";
+    public static final String ClientRoleName = "ROLE_CLIENT";
+
     @Id
     private long id;
 

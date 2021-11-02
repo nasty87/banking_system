@@ -69,7 +69,7 @@ public class OperationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new Gson().toJson(user)))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isForbidden());
+                .andExpect(status().isBadRequest());
     }
 
     @WithMockUser(roles="BANK")
@@ -95,7 +95,7 @@ public class OperationControllerTest {
         operation.setToAccountNumber("22222222222222222222");
         operation.setSum(new BigDecimal(100));
 
-        this.mockMvc.perform(post("/operations/add")
+        this.mockMvc.perform(post("/clients/operations/add")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new Gson().toJson(operation)))
                 .andDo(MockMvcResultHandlers.print())
@@ -111,11 +111,11 @@ public class OperationControllerTest {
         operation.setToAccountNumber("22222222222222222222");
         operation.setSum(new BigDecimal(1000000000));
 
-        this.mockMvc.perform(post("/operations/add")
+        this.mockMvc.perform(post("/clients/operations/add")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new Gson().toJson(operation)))
                 .andDo(MockMvcResultHandlers.print())
-                .andExpect(status().isForbidden());
+                .andExpect(status().isBadRequest());
 
     }
 
@@ -127,7 +127,7 @@ public class OperationControllerTest {
         operation.setToAccountNumber("22222222222222222222");
         operation.setSum(new BigDecimal(10000));
 
-        this.mockMvc.perform(post("/operations/add")
+        this.mockMvc.perform(post("/clients/operations/add")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new Gson().toJson(operation)))
                 .andDo(MockMvcResultHandlers.print())

@@ -11,4 +11,8 @@ public class AccountDao {
     public AccountEntity findByAccountNumber(String accountNumber) {
         return accountRepository.findByAccountNumber(accountNumber);
     }
+
+    public void saveAccount (AccountEntity account) {
+        accountRepository.saveAndFlush(account);
+    }
 }

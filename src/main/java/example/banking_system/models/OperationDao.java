@@ -19,17 +19,7 @@ public class OperationDao {
     private OperationRepository operationRepository;
 
     public void addOperation(@NotNull OperationEntity operation) {
-        if (operation.getFromAccount() != null) {
-            operation.getFromAccount().setBalance(
-                    operation.getFromAccount().getBalance().subtract(operation.getSum()));
-            entityManager.merge(operation.getFromAccount());
-        }
-        if (operation.getToAccount() != null) {
-            operation.getToAccount().setBalance(
-                    operation.getToAccount().getBalance().add(operation.getSum()));
-            entityManager.merge(operation.getToAccount());
-        }
-        entityManager.merge(operation);
+        operationRepository.saveAndFlush(operation);
     }
 
 

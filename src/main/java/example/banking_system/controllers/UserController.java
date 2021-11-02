@@ -1,6 +1,5 @@
 package example.banking_system.controllers;
 
-import com.sun.istack.NotNull;
 import example.banking_system.models.*;
 import example.banking_system.security.AuthRequest;
 import example.banking_system.security.AuthResponse;
@@ -12,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,9 +19,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.Optional;
 
 
 @RestController
@@ -106,36 +106,10 @@ public class UserController {
 
 
     @Transactional
+    @Secured(Role.AdminRoleName)
     @PostMapping(path = "/users/add", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public String addUser(@NotNull @RequestBody UserDto user) throws BusinessException{
-        if (user.getName().isEmpty() || user.getLogin().isEmpty() || user.getPassword().isEmpty()) {
-            throw new BusinessException("User creation error: invalid parameter(s)!", HttpStatus.BAD_REQUEST);
-        }
-        try {
-            UserEntity newUser = new UserEntity();
-            newUser.setName(user.getName());
-            newUser.setLogin(user.getLogin());
-            newUser.setPassword(user.getPassword());
-
-            for (AccountDto account : user.getAccounts()) {
-                AccountEntity accountEntity = new AccountEntity();
-                accountEntity.setAccountNumber(account.getAccountNumber());
-                accountEntity.setBalance(account.getBalance());
-                accountEntity.setCreationDate(account.getCreationDate());
-                accountEntity.setUser(newUser);
-                newUser.getAccounts().add(accountEntity);
-            }
-
-            if (userService.saveUser(newUser, user.getRoleName())) {
-                return "User created!";
-            }
-
-            else
-                throw new BusinessException("User creation error: such login already exists!", HttpStatus.FORBIDDEN);
-        }
-        catch (HibernateException he) {
-            throw new BusinessException("User creation error: can't connect to data base", HttpStatus.SERVICE_UNAVAILABLE);
-        }
+    public void addUser(@NotNull @RequestBody UserDto user) throws InvalidParameterException{
+        userService.addUser(user);
     }
 
     @PostMapping(path = "/login", consumes = MediaType.APPLICATION_JSON_VALUE)

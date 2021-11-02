@@ -13,9 +13,9 @@ public class RoleDao {
     }
 
     public void ensureRoles() {
-        roleRepository.save(new Role(1, "ROLE_ADMIN"));
-        roleRepository.save(new Role(2, "ROLE_BANK"));
-        roleRepository.save(new Role(3, "ROLE_CLIENT"));
+        roleRepository.save(new Role(1, Role.AdminRoleName));
+        roleRepository.save(new Role(2, Role.BankRoleName));
+        roleRepository.save(new Role(3, Role.ClientRoleName));
         roleRepository.flush();
     }
 
