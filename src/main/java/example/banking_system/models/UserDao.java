@@ -1,34 +1,27 @@
 package example.banking_system.models;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Optional;
 
-public class UserDao {
-    @PersistenceContext
-    private EntityManager entityManager;
+@Component
+public class UserDao { ;
+    @Autowired
+    private UserRepository userRepository;
 
     public void addUser(User user) {
-        entityManager.persist(user);
+        userRepository.saveAndFlush(user);
     }
 
     public User findUserByLogin(String login) {
-        Optional<User> optional = entityManager.createQuery(
-                        "SELECT u FROM User u WHERE u.login LIKE :login")
-                .setParameter("login", login).getResultList().stream().findFirst();
-        if (optional.isEmpty())
-            return null;
-        return optional.get();
+       return userRepository.findUserByLogin(login);
     }
 
     public User findUserByLoginAndPassword(String login, String password) {
-        Optional<User> optional = entityManager.createQuery(
-                        "SELECT u FROM User u WHERE u.login LIKE :login and u.password LIKE :password")
-                .setParameter("login", login).setParameter("password", password)
-                .getResultList().stream().findFirst();
-        if (optional.isEmpty())
-            return null;
-        return optional.get();
+        return userRepository.findUserByLoginAndPassword(login, password);
     }
 
 }

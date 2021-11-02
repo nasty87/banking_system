@@ -1,28 +1,31 @@
 package example.banking_system.models;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Optional;
 
+@Component
 public class RoleDao {
-    @PersistenceContext
-    private EntityManager entityManager;
+    @Autowired
+    RoleRepository roleRepository;
 
     public void init() {
         ensureRoles();
     }
 
     public void ensureRoles() {
-        entityManager.merge(new Role(1, "ROLE_ADMIN"));
-        entityManager.merge(new Role(2, "ROLE_BANK"));
-        entityManager.merge(new Role(3, "ROLE_CLIENT"));
+        roleRepository.save(new Role(1, "ROLE_ADMIN"));
+        roleRepository.save(new Role(2, "ROLE_BANK"));
+        roleRepository.save(new Role(3, "ROLE_CLIENT"));
+        roleRepository.flush();
     }
 
     protected Role getRoleByName(String name, boolean ensure) {
-        Optional<Role> optional = entityManager.createQuery(
-                        "Select r from Role r WHERE r.name LIKE :name")
-                .setParameter("name", name).getResultList().stream().findFirst();
-        if (optional.isEmpty()) {
+        Role role = roleRepository.getRoleByName(name);
+        if (role == null) {
             if (ensure) {
                 ensureRoles();
                 return getRoleByName(name, false);
@@ -31,7 +34,7 @@ public class RoleDao {
                 return null;
             }
         }
-        return optional.get();
+        return role;
     }
 
     public Role getRoleByName(String name) {

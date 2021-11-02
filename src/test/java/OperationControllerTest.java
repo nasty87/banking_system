@@ -239,7 +239,7 @@ public class OperationControllerTest {
     public void getPageHistoryTest() throws Exception {
         this.mockMvc.perform(get("/account/history")
                         .param("accountNumber", "111111")
-                        .param("offset", "0")
+                        .param("pageNumber", "1")
                         .param("pageSize", "2"))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk());

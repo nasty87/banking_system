@@ -15,14 +15,9 @@ import java.util.List;
 @NoArgsConstructor
 public class Role implements GrantedAuthority {
     @Id
-    @NotNull
     private long id;
 
-    @NotNull
     private String name;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "role")
-    private List<User> users = new ArrayList<>();
 
     public Role(long id, String name) {
         this.id = id;

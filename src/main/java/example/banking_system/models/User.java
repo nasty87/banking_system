@@ -8,9 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -20,15 +18,12 @@ import java.util.List;
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    @NotNull
     private String name;
 
-    @NotNull
     private String login;
 
-    @NotNull
     private String password;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
@@ -37,11 +32,6 @@ public class User implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = true)
     private Role role;
-
-    public void addAccount(Account account) {
-        accounts.add(account);
-        account.setUser(this);
-    }
 
     @Override
     public String getUsername() {

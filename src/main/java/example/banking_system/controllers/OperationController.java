@@ -33,19 +33,23 @@ public class OperationController {
         Account fromAccountDb = operation.getFromAccount() == null ? null : accountDao.findByAccountNumber(operation.getFromAccount().getAccountNumber());
         Account toAccountDb = operation.getToAccount() == null ? null : accountDao.findByAccountNumber(operation.getToAccount().getAccountNumber());
         if (!currentUserBankRole) {
-            if (fromAccountDb == null)
+            if (fromAccountDb == null) {
                 throw new BusinessException("Operation error: from account required!", HttpStatus.BAD_REQUEST);
+            }
 
-            if (toAccountDb == null)
+            if (toAccountDb == null) {
                 throw new BusinessException("Operation error: to account required!", HttpStatus.BAD_REQUEST);
+            }
 
             User user = fromAccountDb.getUser();
-            if (currentUser.getId() != user.getId())
+            if (currentUser.getId() != user.getId()) {
                 throw new BusinessException("Operation error: operation not permitted!", HttpStatus.FORBIDDEN);
+            }
         }
 
-        if (fromAccountDb != null && fromAccountDb.getBalance().compareTo(operation.getSum()) < 0)
+        if (fromAccountDb != null && fromAccountDb.getBalance().compareTo(operation.getSum()) < 0) {
             throw new BusinessException("Operation error: not enough money!", HttpStatus.FORBIDDEN);
+        }
 
         Operation newOperation = new Operation();
         newOperation.setDateTime(new Date());
@@ -66,10 +70,10 @@ public class OperationController {
     @Transactional
     @GetMapping(path = "/account/history")
     public List<OperationInfo> getHistoryPage(@RequestParam (value = "accountNumber", defaultValue = "") String accountNumber,
-                                              @RequestParam (value = "offset", defaultValue = "-1") int offset,
+                                              @RequestParam (value = "pageNumber", defaultValue = "-1") int pageNumber,
                                               @RequestParam (value = "pageSize", defaultValue = "0") int pageSize) throws BusinessException {
         Account accountFromDb = checkCanGetAccountInformation(accountNumber);
-        return toOperationInfoList(operationDao.getOperationHistoryPage(accountFromDb, offset, pageSize));
+        return toOperationInfoList(operationDao.getOperationHistoryPage(accountFromDb, pageNumber, pageSize));
     }
 
     protected User getCurrentUser() {
@@ -78,21 +82,25 @@ public class OperationController {
     }
 
     protected Account checkCanGetAccountInformation(String accountNumber) throws BusinessException{
-        if (accountNumber.isEmpty())
+        if (accountNumber.isEmpty()) {
             throw new BusinessException("Get balance error: no account set!", HttpStatus.BAD_REQUEST);
+        }
 
         Account accountFromDb = accountDao.findByAccountNumber(accountNumber);
-        if (accountFromDb == null)
+        if (accountFromDb == null) {
             throw new BusinessException("Get balance error: account not found!", HttpStatus.BAD_REQUEST);
+        }
 
         User accountUser = accountFromDb.getUser();
-        if (accountUser == null)
+        if (accountUser == null) {
             throw new BusinessException("Get balance error: user for account not found!", HttpStatus.BAD_REQUEST);
+        }
 
         User currentUser = getCurrentUser();
         if (!currentUser.getRole().getName().equals("ROLE_BANK") &&
-                currentUser.getLogin() != accountUser.getLogin())
+                currentUser.getLogin() != accountUser.getLogin()) {
             throw new BusinessException("Get balance error: access forbidden!", HttpStatus.FORBIDDEN);
+        }
 
         return  accountFromDb;
     }

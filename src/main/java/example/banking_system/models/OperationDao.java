@@ -1,15 +1,22 @@
 package example.banking_system.models;
 
 import com.sun.istack.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import java.util.List;
 
+@Component
 public class OperationDao {
     @PersistenceContext
     private EntityManager entityManager;
+
+    @Autowired
+    private OperationRepository operationRepository;
 
     public void addOperation(@NotNull Operation operation) {
         if (operation.getFromAccount() != null) {
@@ -25,19 +32,12 @@ public class OperationDao {
         entityManager.merge(operation);
     }
 
-    public List<Operation> getOperationHistoryFull(@NotNull Account account) {
-        return entityManager.createQuery("SELECT o FROM Operation o WHERE o.fromAccount.id = :accountId " +
-                "OR o.toAccount.id = :accountId").setParameter("accountId", account.getId()).getResultList();
-    }
 
-    public List<Operation> getOperationHistoryPage(@NotNull Account account, int offset, int pageSize) {
-        if (offset < 0 || pageSize <= 0)
-            return getOperationHistoryFull(account);
-        Query query = entityManager.createQuery("SELECT o FROM Operation o WHERE o.fromAccount.id = :accountId " +
-                "OR o.toAccount.id = :accountId").setParameter("accountId", account.getId());
-        query.setFirstResult(offset);
-        query.setMaxResults(pageSize);
-        return query.getResultList();
+    public List<Operation> getOperationHistoryPage(@NotNull Account account, int pageNumber, int pageSize) {
+        if (pageNumber >= 0)
+            return operationRepository.getOperationHistory(account.getId(), PageRequest.of(pageNumber, pageSize));
+        else
+            return operationRepository.getOperationHistory(account.getId(), Pageable.unpaged());
     }
 
 }

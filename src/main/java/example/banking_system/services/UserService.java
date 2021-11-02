@@ -1,4 +1,4 @@
-package example.banking_system.security;
+package example.banking_system.services;
 
 import example.banking_system.models.Role;
 import example.banking_system.models.RoleDao;
@@ -9,8 +9,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Service
 public class UserService implements UserDetailsService {
     @Autowired
     private UserDao userDao;
@@ -29,8 +31,9 @@ public class UserService implements UserDetailsService {
             return false;
         }
         Role role = roleDao.getRoleByName(roleName);
-        if (role != null)
+        if (role != null) {
             user.setRole(role);
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userDao.addUser(user);
         return true;
@@ -40,16 +43,18 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
         User user = userDao.findUserByLogin(userName);
-        if (user == null)
+        if (user == null) {
             throw new UsernameNotFoundException("User not found");
+        }
         return user;
     }
 
     @Transactional
     public User findByLoginAndPassword(String login, String password) throws UsernameNotFoundException {
         User user = userDao.findUserByLoginAndPassword(login, password);
-        if (user == null)
+        if (user == null) {
             throw new UsernameNotFoundException("User not found");
+        }
         return user;
     }
 }

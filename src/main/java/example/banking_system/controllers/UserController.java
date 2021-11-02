@@ -5,7 +5,7 @@ import example.banking_system.models.*;
 import example.banking_system.security.AuthRequest;
 import example.banking_system.security.AuthResponse;
 import example.banking_system.security.JwtProvider;
-import example.banking_system.security.UserService;
+import example.banking_system.services.UserService;
 import org.hibernate.HibernateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -30,6 +30,9 @@ public class UserController {
     private UserService userService;
 
     @Autowired
+    private UserDao userDao;
+
+    @Autowired
     private AccountDao accountDao;
 
     @Autowired
@@ -38,7 +41,7 @@ public class UserController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    @Transactional
+//    @Transactional
     @GetMapping(path = "/init")
     public String init() {
         try {
@@ -61,7 +64,9 @@ public class UserController {
             account1.setAccountNumber("111111");
             account1.setBalance(new BigDecimal(100000));
             account1.setCreationDate(new Date());
-            clientUser1.addAccount(account1);
+//            clientUser1.addAccount(account1);
+            clientUser1.getAccounts().add(account1);
+            account1.setUser(clientUser1);
 
             User clientUser2 = new User();
             clientUser2.setName("client2");
@@ -72,7 +77,9 @@ public class UserController {
             account2.setAccountNumber("222222");
             account2.setBalance(new BigDecimal(200000));
             account2.setCreationDate(new Date());
-            clientUser2.addAccount(account2);
+//            clientUser2.addAccount(account2);
+            clientUser2.getAccounts().add(account2);
+            account2.setUser(clientUser2);
 
             User clientUser3 = new User();
             clientUser3.setName("client3");
@@ -83,7 +90,9 @@ public class UserController {
             account3.setAccountNumber("333333");
             account3.setBalance(new BigDecimal(300000));
             account3.setCreationDate(new Date());
-            clientUser3.addAccount(account3);
+//            clientUser3.addAccount(account3);
+            clientUser3.getAccounts().add(account3);
+            account3.setUser(clientUser3);
 
             userService.saveUser(adminUser, "ROLE_ADMIN");
             userService.saveUser(bankUser, "ROLE_BANK");
@@ -102,8 +111,9 @@ public class UserController {
     @Transactional
     @PostMapping(path = "/users/add", consumes = MediaType.APPLICATION_JSON_VALUE)
     public String addUser(@NotNull @RequestBody User user) throws BusinessException{
-        if (user.getName().isEmpty() || user.getLogin().isEmpty() || user.getPassword().isEmpty())
+        if (user.getName().isEmpty() || user.getLogin().isEmpty() || user.getPassword().isEmpty()) {
             throw new BusinessException("User creation error: invalid parameter(s)!", HttpStatus.BAD_REQUEST);
+        }
         try {
             User newUser = new User();
             newUser.setName(user.getName());
@@ -117,7 +127,8 @@ public class UserController {
                 newAccount.setAccountNumber(account.get().getAccountNumber());
                 newAccount.setBalance(account.get().getBalance());
                 newAccount.setCreationDate(account.get().getCreationDate());
-                newUser.addAccount(newAccount);
+                newUser.getAccounts().add(newAccount);
+                newAccount.setUser(newUser);
             }
 
             if (userService.saveUser(newUser, user.getRole().getName())) {
