@@ -7,8 +7,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface OperationRepository extends JpaRepository<Operation, Long> {
-    @Query("SELECT o FROM Operation o WHERE o.fromAccount.id = :accountId OR o.toAccount.id = :accountId")
-    public List<Operation> getOperationHistory(@Param("accountId") Long accountId, Pageable pageable);
+public interface OperationRepository extends JpaRepository<OperationEntity, Long> {
+    @Query("SELECT o FROM OperationEntity o WHERE o.fromAccount.id = :accountId OR o.toAccount.id = :accountId")
+    public List<OperationEntity> getOperationHistory(@Param("accountId") Long accountId, Pageable pageable);
 }
 

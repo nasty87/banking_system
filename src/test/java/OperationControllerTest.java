@@ -1,10 +1,7 @@
 import com.google.gson.Gson;
 import example.banking_system.Application;
-import example.banking_system.models.Account;
-import example.banking_system.models.Operation;
+import example.banking_system.models.*;
 
-import example.banking_system.models.Role;
-import example.banking_system.models.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,13 +45,11 @@ public class OperationControllerTest {
     @WithMockUser(roles="ADMIN")
     @Test
     public void addUserTest() throws Exception {
-        User user = new User();
+        UserDto user = new UserDto();
         user.setName("test");
         user.setLogin(UUID.randomUUID().toString());
         user.setPassword("12345");
-        Role adminRole = new Role();
-        adminRole.setName("ROLE_CLIENT");
-        user.setRole(adminRole);
+        user.setRoleName("ROLE_CLIENT");
         this.mockMvc.perform(post("/users/add")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new Gson().toJson(user)))
@@ -65,13 +60,11 @@ public class OperationControllerTest {
     @WithMockUser(roles="ADMIN")
     @Test
     public void addExistedUserTest() throws Exception {
-        User user = new User();
+        UserDto user = new UserDto();
         user.setName("test");
         user.setLogin("admin");
         user.setPassword("12345");
-        Role adminRole = new Role();
-        adminRole.setName("ROLE_CLIENT");
-        user.setRole(adminRole);
+        user.setRoleName("ROLE_ADMIN");
         this.mockMvc.perform(post("/users/add")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new Gson().toJson(user)))
@@ -82,13 +75,11 @@ public class OperationControllerTest {
     @WithMockUser(roles="BANK")
     @Test
     public void addUserTestForNotAdmin() throws Exception {
-        User user = new User();
+        UserDto user = new UserDto();
         user.setName("admin");
         user.setLogin("admin");
         user.setPassword("12345");
-        Role adminRole = new Role();
-        adminRole.setName("ROLE_ADMIN");
-        user.setRole(adminRole);
+        user.setRoleName("ROLE_ADMIN");
         this.mockMvc.perform(post("/users/add")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
                         .content(new Gson().toJson(user)))
@@ -99,18 +90,10 @@ public class OperationControllerTest {
     @WithUserDetails(value = "client1")
     @Test
     public void addValidOperationTest() throws Exception {
-        Account fromAccount = new Account();
-        fromAccount.setAccountNumber("111111");
-
-        Account toAccount = new Account();
-        toAccount.setAccountNumber("222222");
-
-        Operation operation = new Operation();
-        operation.setFromAccount(fromAccount);
-        operation.setToAccount(toAccount);
+        OperationDto operation = new OperationDto();
+        operation.setFromAccountNumber("11111111111111111111");
+        operation.setToAccountNumber("22222222222222222222");
         operation.setSum(new BigDecimal(100));
-
-        System.out.println(new Gson().toJson(operation));
 
         this.mockMvc.perform(post("/operations/add")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -123,18 +106,10 @@ public class OperationControllerTest {
     @WithUserDetails(value = "client1")
     @Test
     public void addOperationWithTooBigSumTest() throws Exception {
-        Account fromAccount = new Account();
-        fromAccount.setAccountNumber("111111");
-
-        Account toAccount = new Account();
-        toAccount.setAccountNumber("222222");
-
-        Operation operation = new Operation();
-        operation.setFromAccount(fromAccount);
-        operation.setToAccount(toAccount);
+        OperationDto operation = new OperationDto();
+        operation.setFromAccountNumber("11111111111111111111");
+        operation.setToAccountNumber("22222222222222222222");
         operation.setSum(new BigDecimal(1000000000));
-
-        System.out.println(new Gson().toJson(operation));
 
         this.mockMvc.perform(post("/operations/add")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -147,18 +122,10 @@ public class OperationControllerTest {
     @WithUserDetails(value = "client3")
     @Test
     public void addOperationWithOtherUser() throws Exception {
-        Account fromAccount = new Account();
-        fromAccount.setAccountNumber("111111");
-
-        Account toAccount = new Account();
-        toAccount.setAccountNumber("222222");
-
-        Operation operation = new Operation();
-        operation.setFromAccount(fromAccount);
-        operation.setToAccount(toAccount);
+        OperationDto operation = new OperationDto();
+        operation.setFromAccountNumber("11111111111111111111");
+        operation.setToAccountNumber("22222222222222222222");
         operation.setSum(new BigDecimal(10000));
-
-        System.out.println(new Gson().toJson(operation));
 
         this.mockMvc.perform(post("/operations/add")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -172,7 +139,7 @@ public class OperationControllerTest {
     @Test
     public void getBalanceTest() throws Exception {
         this.mockMvc.perform(get("/account/balance")
-                        .param("accountNumber", "333333"))
+                        .param("accountNumber", "33333333333333333333"))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk());
 
@@ -181,11 +148,8 @@ public class OperationControllerTest {
     @WithUserDetails(value = "bank")
     @Test
     public void getBalanceByBankTest() throws Exception {
-        Account account = new Account();
-        account.setAccountNumber("333333");
-
         this.mockMvc.perform(get("/account/balance")
-                        .param("accountNumber", "333333"))
+                        .param("accountNumber", "33333333333333333333"))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk());
 
@@ -194,11 +158,8 @@ public class OperationControllerTest {
     @WithUserDetails(value = "client1")
     @Test
     public void getBalanceByWrongUserTest() throws Exception {
-        Account account = new Account();
-        account.setAccountNumber("333333");
-
         this.mockMvc.perform(get("/account/balance")
-                        .param("accountNumber", "333333"))
+                        .param("accountNumber", "33333333333333333333"))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isForbidden());
 
@@ -208,7 +169,7 @@ public class OperationControllerTest {
     @Test
     public void getFullHistoryTest() throws Exception {
         this.mockMvc.perform(get("/account/history")
-                        .param("accountNumber", "111111"))
+                        .param("accountNumber", "11111111111111111111"))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk());
 
@@ -218,7 +179,7 @@ public class OperationControllerTest {
     @Test
     public void getFullHistoryByBankTest() throws Exception {
         this.mockMvc.perform(get("/account/history")
-                        .param("accountNumber", "111111"))
+                        .param("accountNumber", "11111111111111111111"))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isOk());
 
@@ -228,7 +189,7 @@ public class OperationControllerTest {
     @Test
     public void getFullHistoryByWrongUserTest() throws Exception {
         this.mockMvc.perform(get("/account/history")
-                        .param("accountNumber", "111111"))
+                        .param("accountNumber", "11111111111111111111"))
                 .andDo(MockMvcResultHandlers.print())
                 .andExpect(status().isForbidden());
 
@@ -238,7 +199,7 @@ public class OperationControllerTest {
     @Test
     public void getPageHistoryTest() throws Exception {
         this.mockMvc.perform(get("/account/history")
-                        .param("accountNumber", "111111")
+                        .param("accountNumber", "11111111111111111111")
                         .param("pageNumber", "1")
                         .param("pageSize", "2"))
                 .andDo(MockMvcResultHandlers.print())

@@ -2,7 +2,7 @@ package example.banking_system.services;
 
 import example.banking_system.models.Role;
 import example.banking_system.models.RoleDao;
-import example.banking_system.models.User;
+import example.banking_system.models.UserEntity;
 import example.banking_system.models.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,8 +24,8 @@ public class UserService implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     @Transactional
-    public boolean saveUser(User user, String roleName) {
-        User userFromDB = userDao.findUserByLogin(user.getUsername());
+    public boolean saveUser(UserEntity user, String roleName) {
+        UserEntity userFromDB = userDao.findUserByLogin(user.getUsername());
 
         if (userFromDB != null) {
             return false;
@@ -42,7 +42,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-        User user = userDao.findUserByLogin(userName);
+        UserEntity user = userDao.findUserByLogin(userName);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
@@ -50,8 +50,8 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public User findByLoginAndPassword(String login, String password) throws UsernameNotFoundException {
-        User user = userDao.findUserByLoginAndPassword(login, password);
+    public UserEntity findByLoginAndPassword(String login, String password) throws UsernameNotFoundException {
+        UserEntity user = userDao.findUserByLoginAndPassword(login, password);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }

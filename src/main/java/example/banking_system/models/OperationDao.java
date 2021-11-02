@@ -18,7 +18,7 @@ public class OperationDao {
     @Autowired
     private OperationRepository operationRepository;
 
-    public void addOperation(@NotNull Operation operation) {
+    public void addOperation(@NotNull OperationEntity operation) {
         if (operation.getFromAccount() != null) {
             operation.getFromAccount().setBalance(
                     operation.getFromAccount().getBalance().subtract(operation.getSum()));
@@ -33,7 +33,7 @@ public class OperationDao {
     }
 
 
-    public List<Operation> getOperationHistoryPage(@NotNull Account account, int pageNumber, int pageSize) {
+    public List<OperationEntity> getOperationHistoryPage(@NotNull AccountEntity account, int pageNumber, int pageSize) {
         if (pageNumber >= 0)
             return operationRepository.getOperationHistory(account.getId(), PageRequest.of(pageNumber, pageSize));
         else

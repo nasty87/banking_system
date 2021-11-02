@@ -1,73 +1,20 @@
 package example.banking_system.models;
 
-import com.sun.istack.NotNull;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.*;
-import java.util.*;
+import java.util.List;
 
-@Entity
-@Table(name = "users")
-@NoArgsConstructor
-@Getter
-@Setter
-public class User implements UserDetails {
-    @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long id;
+public interface User extends UserDetails {
+    public String getName();
+    public void setName(String name);
 
-    private String name;
+    public String getLogin();
+    public void setLogin(String name);
 
-    private String login;
+    public void setPassword(String password);
 
-    private String password;
+    public List<? extends Account> getAccounts();
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Account> accounts = new ArrayList<>();
+    public String getRoleName();
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = true)
-    private Role role;
-
-    @Override
-    public String getUsername() {
-        return login;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<Role> roles = new ArrayList<>();
-        roles.add(getRole());
-        return roles;
-
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
 }

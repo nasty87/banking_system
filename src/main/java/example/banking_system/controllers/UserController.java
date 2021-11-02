@@ -45,52 +45,49 @@ public class UserController {
     @GetMapping(path = "/init")
     public String init() {
         try {
-            User adminUser = new User();
+            UserEntity adminUser = new UserEntity();
             adminUser.setName("admin");
             adminUser.setLogin("admin");
             adminUser.setPassword("12345");
 
-            User bankUser = new User();
+            UserEntity bankUser = new UserEntity();
             bankUser.setName("bank");
             bankUser.setLogin("bank");
             bankUser.setPassword("12345");
 
-            User clientUser1 = new User();
+            UserEntity clientUser1 = new UserEntity();
             clientUser1.setName("client1");
             clientUser1.setLogin("client1");
             clientUser1.setPassword("12345");
 
-            Account account1 = new Account();
-            account1.setAccountNumber("111111");
+            AccountEntity account1 = new AccountEntity();
+            account1.setAccountNumber("11111111111111111111");
             account1.setBalance(new BigDecimal(100000));
             account1.setCreationDate(new Date());
-//            clientUser1.addAccount(account1);
             clientUser1.getAccounts().add(account1);
             account1.setUser(clientUser1);
 
-            User clientUser2 = new User();
+            UserEntity clientUser2 = new UserEntity();
             clientUser2.setName("client2");
             clientUser2.setLogin("client2");
             clientUser2.setPassword("12345");
 
-            Account account2 = new Account();
-            account2.setAccountNumber("222222");
+            AccountEntity account2 = new AccountEntity();
+            account2.setAccountNumber("22222222222222222222");
             account2.setBalance(new BigDecimal(200000));
             account2.setCreationDate(new Date());
-//            clientUser2.addAccount(account2);
             clientUser2.getAccounts().add(account2);
             account2.setUser(clientUser2);
 
-            User clientUser3 = new User();
+            UserEntity clientUser3 = new UserEntity();
             clientUser3.setName("client3");
             clientUser3.setLogin("client3");
             clientUser3.setPassword("12345");
 
-            Account account3 = new Account();
-            account3.setAccountNumber("333333");
+            AccountEntity account3 = new AccountEntity();
+            account3.setAccountNumber("33333333333333333333");
             account3.setBalance(new BigDecimal(300000));
             account3.setCreationDate(new Date());
-//            clientUser3.addAccount(account3);
             clientUser3.getAccounts().add(account3);
             account3.setUser(clientUser3);
 
@@ -110,28 +107,26 @@ public class UserController {
 
     @Transactional
     @PostMapping(path = "/users/add", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public String addUser(@NotNull @RequestBody User user) throws BusinessException{
+    public String addUser(@NotNull @RequestBody UserDto user) throws BusinessException{
         if (user.getName().isEmpty() || user.getLogin().isEmpty() || user.getPassword().isEmpty()) {
             throw new BusinessException("User creation error: invalid parameter(s)!", HttpStatus.BAD_REQUEST);
         }
         try {
-            User newUser = new User();
+            UserEntity newUser = new UserEntity();
             newUser.setName(user.getName());
             newUser.setLogin(user.getLogin());
             newUser.setPassword(user.getPassword());
 
-            Account newAccount = null;
-            Optional<Account> account = user.getAccounts().stream().findFirst();
-            if (!account.isEmpty() && !account.get().getAccountNumber().isEmpty()) {
-                newAccount = new Account();
-                newAccount.setAccountNumber(account.get().getAccountNumber());
-                newAccount.setBalance(account.get().getBalance());
-                newAccount.setCreationDate(account.get().getCreationDate());
-                newUser.getAccounts().add(newAccount);
-                newAccount.setUser(newUser);
+            for (AccountDto account : user.getAccounts()) {
+                AccountEntity accountEntity = new AccountEntity();
+                accountEntity.setAccountNumber(account.getAccountNumber());
+                accountEntity.setBalance(account.getBalance());
+                accountEntity.setCreationDate(account.getCreationDate());
+                accountEntity.setUser(newUser);
+                newUser.getAccounts().add(accountEntity);
             }
 
-            if (userService.saveUser(newUser, user.getRole().getName())) {
+            if (userService.saveUser(newUser, user.getRoleName())) {
                 return "User created!";
             }
 
@@ -149,7 +144,7 @@ public class UserController {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.getLogin(), request.getPassword())
             );
-            User user = (User) authentication.getPrincipal();
+            UserEntity user = (UserEntity) authentication.getPrincipal();
             return ResponseEntity.ok().header(
                     HttpHeaders.AUTHORIZATION, jwtProvider.generateToken(user.getLogin()))
                     .body(new AuthResponse(user.getId(), user.getName(), user.getLogin()));

@@ -26,12 +26,12 @@ public class OperationController {
     
     @Transactional
     @PostMapping(path = "/operations/add", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public String addOperation(@NotNull @RequestBody Operation operation) throws BusinessException {
-        User currentUser = getCurrentUser();
+    public String addOperation(@NotNull @RequestBody OperationDto operation) throws BusinessException {
+        UserEntity currentUser = getCurrentUser();
         boolean currentUserBankRole = currentUser.getRole().getName().equals("ROLE_BANK");
 
-        Account fromAccountDb = operation.getFromAccount() == null ? null : accountDao.findByAccountNumber(operation.getFromAccount().getAccountNumber());
-        Account toAccountDb = operation.getToAccount() == null ? null : accountDao.findByAccountNumber(operation.getToAccount().getAccountNumber());
+        AccountEntity fromAccountDb = operation.getFromAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getFromAccountNumber());
+        AccountEntity toAccountDb = operation.getToAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getToAccountNumber());
         if (!currentUserBankRole) {
             if (fromAccountDb == null) {
                 throw new BusinessException("Operation error: from account required!", HttpStatus.BAD_REQUEST);
@@ -41,7 +41,7 @@ public class OperationController {
                 throw new BusinessException("Operation error: to account required!", HttpStatus.BAD_REQUEST);
             }
 
-            User user = fromAccountDb.getUser();
+            UserEntity user = fromAccountDb.getUser();
             if (currentUser.getId() != user.getId()) {
                 throw new BusinessException("Operation error: operation not permitted!", HttpStatus.FORBIDDEN);
             }
@@ -51,7 +51,7 @@ public class OperationController {
             throw new BusinessException("Operation error: not enough money!", HttpStatus.FORBIDDEN);
         }
 
-        Operation newOperation = new Operation();
+        OperationEntity newOperation = new OperationEntity();
         newOperation.setDateTime(new Date());
         newOperation.setFromAccount(fromAccountDb);
         newOperation.setToAccount(toAccountDb);
@@ -63,7 +63,7 @@ public class OperationController {
     @Transactional
     @GetMapping(path = "/account/balance")
     public String getBalance(@RequestParam (value = "accountNumber", defaultValue = "") String accountNumber) throws BusinessException {
-        Account accountFromDb = checkCanGetAccountInformation(accountNumber);
+        AccountEntity accountFromDb = checkCanGetAccountInformation(accountNumber);
         return "$" + accountFromDb.getBalance().toString();
     }
 
@@ -72,31 +72,31 @@ public class OperationController {
     public List<OperationInfo> getHistoryPage(@RequestParam (value = "accountNumber", defaultValue = "") String accountNumber,
                                               @RequestParam (value = "pageNumber", defaultValue = "-1") int pageNumber,
                                               @RequestParam (value = "pageSize", defaultValue = "0") int pageSize) throws BusinessException {
-        Account accountFromDb = checkCanGetAccountInformation(accountNumber);
+        AccountEntity accountFromDb = checkCanGetAccountInformation(accountNumber);
         return toOperationInfoList(operationDao.getOperationHistoryPage(accountFromDb, pageNumber, pageSize));
     }
 
-    protected User getCurrentUser() {
+    protected UserEntity getCurrentUser() {
         String currentUserName = SecurityContextHolder.getContext().getAuthentication().getName();
         return userDao.findUserByLogin(currentUserName);
     }
 
-    protected Account checkCanGetAccountInformation(String accountNumber) throws BusinessException{
+    protected AccountEntity checkCanGetAccountInformation(String accountNumber) throws BusinessException{
         if (accountNumber.isEmpty()) {
             throw new BusinessException("Get balance error: no account set!", HttpStatus.BAD_REQUEST);
         }
 
-        Account accountFromDb = accountDao.findByAccountNumber(accountNumber);
+        AccountEntity accountFromDb = accountDao.findByAccountNumber(accountNumber);
         if (accountFromDb == null) {
             throw new BusinessException("Get balance error: account not found!", HttpStatus.BAD_REQUEST);
         }
 
-        User accountUser = accountFromDb.getUser();
+        UserEntity accountUser = accountFromDb.getUser();
         if (accountUser == null) {
             throw new BusinessException("Get balance error: user for account not found!", HttpStatus.BAD_REQUEST);
         }
 
-        User currentUser = getCurrentUser();
+        UserEntity currentUser = getCurrentUser();
         if (!currentUser.getRole().getName().equals("ROLE_BANK") &&
                 currentUser.getLogin() != accountUser.getLogin()) {
             throw new BusinessException("Get balance error: access forbidden!", HttpStatus.FORBIDDEN);
@@ -105,9 +105,9 @@ public class OperationController {
         return  accountFromDb;
     }
 
-    protected List<OperationInfo> toOperationInfoList(List<Operation> operations) {
+    protected List<OperationInfo> toOperationInfoList(List<OperationEntity> operations) {
         List<OperationInfo> res = new ArrayList<>();
-        for (Operation operation: operations) {
+        for (OperationEntity operation: operations) {
             OperationInfo operationInfo = new OperationInfo();
             operationInfo.setDate(operation.getDateTime());
             operationInfo.setFromAccount(operation.getFromAccount().getAccountNumber());
