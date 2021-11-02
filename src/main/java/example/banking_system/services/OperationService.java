@@ -28,8 +28,9 @@ public class OperationService {
     private UserService userService;
 
     @Transactional
-    public void addClientOperation(@NotNull OperationDto operation, @NotNull UserEntity currentUser)
+    public void addClientOperation(OperationDto operation)
             throws InvalidParameterException, NotAllowedException {
+        UserEntity currentUser = userService.getCurrentUser();
         AccountEntity fromAccountDb = operation.getFromAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getFromAccountNumber());
         AccountEntity toAccountDb = operation.getToAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getToAccountNumber());
 
@@ -60,8 +61,9 @@ public class OperationService {
     }
 
     @Transactional
-    public void addBankOperationPut(@NotNull OperationDto operation, @NotNull UserEntity currentUser)
+    public void addBankOperationPut(OperationDto operation)
         throws InvalidParameterException, NotAllowedException {
+        UserEntity currentUser = userService.getCurrentUser();
         if (!userService.userHasBankRole(currentUser)) {
             throw new NotAllowedException();
         }
@@ -90,8 +92,10 @@ public class OperationService {
     }
 
     @Transactional
-    public void addBankOperationWithdraw(@NotNull OperationDto operation, @NotNull UserEntity currentUser)
+    public void addBankOperationWithdraw(@NotNull OperationDto operation)
             throws InvalidParameterException, NotAllowedException {
+        UserEntity currentUser = userService.getCurrentUser();
+
         if (!userService.userHasBankRole(currentUser)) {
             throw new NotAllowedException();
         }
@@ -120,16 +124,16 @@ public class OperationService {
     }
 
     @Transactional
-    public String getBalance(String accountNumber, UserEntity currentUser)
+    public String getBalance(String accountNumber)
         throws InvalidParameterException, NotAllowedException {
-        AccountEntity account = checkCanGetAccountInformation(accountNumber, currentUser);
+        AccountEntity account = checkCanGetAccountInformation(accountNumber, userService.getCurrentUser());
         return "$" + account.getBalance().toString();
     }
 
     @Transactional
-    public List<OperationInfo> getHistoryPage(String accountNumber, int pageNumber, int pageSize, UserEntity currentUser)
+    public List<OperationInfo> getHistoryPage(String accountNumber, int pageNumber, int pageSize)
             throws InvalidParameterException, NotAllowedException {
-        AccountEntity account = checkCanGetAccountInformation(accountNumber, currentUser);
+        AccountEntity account = checkCanGetAccountInformation(accountNumber, userService.getCurrentUser());
         return toOperationInfoList(operationDao.getOperationHistoryPage(account, pageNumber, pageSize));
     }
 
