@@ -43,7 +43,7 @@ public class OperationControllerTest {
 
             AccountDto bankAccount = new AccountDto();
             bankAccount.setAccountNumber("00000000000000000000");
-            bankAccount.setBalance(new BigDecimal(100000));
+            bankAccount.setBalance(new BigDecimal(0));
             bankAccount.setCreationDate(new Date());
             bankUser.getAccounts().add(bankAccount);
 
@@ -260,5 +260,4 @@ public class OperationControllerTest {
         }
         assert (testPassed);
     }
-
 }

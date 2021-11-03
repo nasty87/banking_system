@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -40,7 +41,7 @@ public class OperationController {
 
     @Transactional
     @GetMapping(path = "/account/balance")
-    public String getBalance(@Size(min = 20, max = 20) @RequestParam (value = "accountNumber") String accountNumber)
+    public BigDecimal getBalance(@Size(min = 20, max = 20) @RequestParam (value = "accountNumber") String accountNumber)
             throws InvalidParameterException, NotAllowedException {
         return operationService.getBalance(accountNumber);
     }

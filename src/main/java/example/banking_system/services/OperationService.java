@@ -6,14 +6,17 @@ import example.banking_system.controllers.OperationInfo;
 import example.banking_system.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Service
+@EnableTransactionManagement
 public class OperationService {
     @Autowired
     private UserDao userDao;
@@ -42,21 +45,13 @@ public class OperationService {
             throw new NotAllowedException();
         }
 
-        if (fromAccountDb.getBalance().compareTo(operation.getSum()) < 0) {
-            throw new InvalidParameterException();
-        }
-
         OperationEntity newOperation = new OperationEntity();
         newOperation.setDateTime(new Date());
         newOperation.setFromAccount(fromAccountDb);
         newOperation.setToAccount(toAccountDb);
         newOperation.setSum(operation.getSum());
 
-        fromAccountDb.setBalance(fromAccountDb.getBalance().subtract(operation.getSum()));
-        toAccountDb.setBalance(toAccountDb.getBalance().add(operation.getSum()));
-
-        accountDao.saveAccount(fromAccountDb);
-        accountDao.saveAccount(toAccountDb);
+        executeOperation(fromAccountDb.getId(), toAccountDb.getId(), operation.getSum());
         operationDao.addOperation(newOperation);
     }
 
@@ -85,9 +80,7 @@ public class OperationService {
         newOperation.setToAccount(toAccountDb);
         newOperation.setSum(operation.getSum());
 
-        toAccountDb.setBalance(toAccountDb.getBalance().add(operation.getSum()));
-
-        accountDao.saveAccount(toAccountDb);
+        executeOperation(null, toAccountDb.getId(), operation.getSum());
         operationDao.addOperation(newOperation);
     }
 
@@ -117,17 +110,15 @@ public class OperationService {
         newOperation.setToAccount(toAccountDb);
         newOperation.setSum(operation.getSum());
 
-        fromAccountDb.setBalance(fromAccountDb.getBalance().subtract(operation.getSum()));
-
-        accountDao.saveAccount(fromAccountDb);
+        executeOperation(fromAccountDb.getId(), null, operation.getSum());
         operationDao.addOperation(newOperation);
     }
 
     @Transactional
-    public String getBalance(String accountNumber)
+    public BigDecimal getBalance(String accountNumber)
         throws InvalidParameterException, NotAllowedException {
         AccountEntity account = checkCanGetAccountInformation(accountNumber, userService.getCurrentUser());
-        return "$" + account.getBalance().toString();
+        return account.getBalance();
     }
 
     @Transactional
@@ -164,5 +155,28 @@ public class OperationService {
             res.add(operationInfo);
         }
         return res;
+    }
+
+    public void executeOperation(Long fromAccountId, Long toAccountId, BigDecimal sum) throws InvalidParameterException {
+        System.out.println("executeOperation");
+        BigDecimal fromBalance = null;
+        BigDecimal toBalance = null;
+        if (fromAccountId != null) {
+            fromBalance = accountDao.getBalanceForUpdate(fromAccountId);
+            if (fromBalance.compareTo(sum) < 0) {
+                throw new InvalidParameterException();
+            }
+        }
+        if (toAccountId != null) {
+            toBalance = accountDao.getBalanceForUpdate(toAccountId);
+        }
+        if (fromBalance != null) {
+            accountDao.setBalance(fromAccountId, fromBalance.subtract(sum));
+        }
+        if (toBalance != null) {
+            System.out.println("old balance: " + toBalance);
+            System.out.println("new balance: " + toBalance.add(sum));
+            accountDao.setBalance(toAccountId, toBalance.add(sum));
+        }
     }
 }

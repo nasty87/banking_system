@@ -16,11 +16,11 @@ public class Role implements GrantedAuthority {
     public static final String ClientRoleName = "ROLE_CLIENT";
 
     @Id
-    private long id;
+    private Long id;
 
     private String name;
 
-    public Role(long id, String name) {
+    public Role(Long id, String name) {
         this.id = id;
         this.name = name;
     }
