@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-@EnableTransactionManagement
 public class OperationService {
     @Autowired
     private UserDao userDao;
