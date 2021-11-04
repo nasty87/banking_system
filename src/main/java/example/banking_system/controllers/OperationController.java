@@ -64,6 +64,7 @@ public class OperationController {
         int attemptsCount = 10;
         do {
             try {
+                --attemptsCount;
                 operationService.addOperation(operationType, operation, currentUser);
                 return;
             }
@@ -71,7 +72,7 @@ public class OperationController {
                 throw e;
             }
             catch (Exception e) {
-
+                // nothing
             }
         }
         while(attemptsCount != 0);

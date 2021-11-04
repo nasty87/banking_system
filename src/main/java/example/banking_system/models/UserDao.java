@@ -20,4 +20,8 @@ public class UserDao { ;
         return userRepository.findUserByLoginAndPassword(login, password);
     }
 
+    public void deleteAll() {
+        userRepository.deleteAll();
+    }
+
 }

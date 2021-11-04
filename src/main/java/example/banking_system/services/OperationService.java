@@ -144,4 +144,11 @@ public class OperationService {
             accountDao.setBalance(toAccountId, toBalance.add(sum));
         }
     }
+
+    @Transactional
+    public void clearDataBase() {
+        accountDao.deleteAll();
+        userDao.deleteAll();
+        operationDao.deleteAll();
+    }
 }

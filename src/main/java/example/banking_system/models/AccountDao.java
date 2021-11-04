@@ -25,4 +25,8 @@ public class AccountDao {
     public void setBalance(Long id, BigDecimal balance) {
         accountRepository.setBalance(id, balance);
     }
+
+    public void deleteAll() {
+        accountRepository.deleteAll();
+    }
 }

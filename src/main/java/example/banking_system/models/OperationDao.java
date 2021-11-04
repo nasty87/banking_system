@@ -30,4 +30,8 @@ public class OperationDao {
             return operationRepository.getOperationHistory(account.getId(), Pageable.unpaged());
     }
 
+    public void deleteAll() {
+        operationRepository.deleteAll();
+    }
+
 }
