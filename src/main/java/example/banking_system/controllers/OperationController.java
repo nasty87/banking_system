@@ -26,21 +26,21 @@ public class OperationController {
     @PostMapping(path = "/clients/operations/add", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void addClientOperation(@NotNull @RequestBody OperationDto operation)
             throws InvalidParameterException, NotAllowedException {
-        operationService.addOperation(OperationService.OperationType.ClientOperation, operation, userService.getCurrentUser());
+        addOperationLoop(OperationService.OperationType.ClientOperation, operation, userService.getCurrentUser());
     }
 
     @Secured(Role.BankRoleName)
     @PostMapping(path = "/bank/operations/put", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void addBankOperationPut(@NotNull @RequestBody OperationDto operation)
             throws InvalidParameterException, NotAllowedException {
-        operationService.addOperation(OperationService.OperationType.BankPut, operation, userService.getCurrentUser());
+        addOperationLoop(OperationService.OperationType.BankPut, operation, userService.getCurrentUser());
     }
 
     @Secured(Role.BankRoleName)
     @PostMapping(path = "/bank/operations/withdraw", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void addBankOperationWithdraw(@NotNull @RequestBody OperationDto operation)
             throws InvalidParameterException, NotAllowedException {
-        operationService.addOperation(OperationService.OperationType.BankWithdraw, operation, userService.getCurrentUser());
+        addOperationLoop(OperationService.OperationType.BankWithdraw, operation, userService.getCurrentUser());
     }
 
     @Transactional
@@ -59,7 +59,21 @@ public class OperationController {
         return operationService.getHistoryPage(accountNumber, pageNumber, pageSize, userService.getCurrentUser());
     }
 
+    protected void addOperationLoop(OperationService.OperationType operationType, OperationDto operation, UserEntity currentUser)
+        throws InvalidParameterException, NotAllowedException {
+        int attemptsCount = 10;
+        do {
+            try {
+                operationService.addOperation(operationType, operation, currentUser);
+                return;
+            }
+            catch (InvalidParameterException | NotAllowedException e) {
+                throw e;
+            }
+            catch (Exception e) {
 
-
-
+            }
+        }
+        while(attemptsCount != 0);
+    }
 }

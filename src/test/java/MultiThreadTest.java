@@ -1,5 +1,6 @@
 import example.banking_system.Application;
 import example.banking_system.controllers.InvalidParameterException;
+import example.banking_system.controllers.NotAllowedException;
 import example.banking_system.models.*;
 import example.banking_system.services.OperationService;
 import example.banking_system.services.UserService;
@@ -12,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.annotation.PostConstruct;
@@ -97,13 +97,22 @@ public class MultiThreadTest {
         operationDto.setToAccountNumber("11111111111111111111");
         operationDto.setSum(new BigDecimal(1));
         operationDto.setDateTime(new Date());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        try {
-            operationService.addOperation(OperationService.OperationType.BankPut, operationDto, getBank());
-        }
-        catch (Exception e) {
+        do {
+            try {
+                operationService.addOperation(OperationService.OperationType.BankPut, operationDto, getBank());
+                return;
+            }
+            catch (InvalidParameterException e) {
+                return;
+            }
+            catch (NotAllowedException e) {
+                return;
+            }
+            catch (Exception e) {
 
+            }
         }
+        while(true);
     }
 
     public void addOperationWithdraw(int i) {
@@ -112,16 +121,23 @@ public class MultiThreadTest {
         operationDto.setToAccountNumber("00000000000000000000");
         operationDto.setSum(new BigDecimal(30000));
         operationDto.setDateTime(new Date());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        try {
-            operationService.addOperation(OperationService.OperationType.BankWithdraw, operationDto, getBank());
-        }
-        catch (InvalidParameterException e) {
-            withdrawSuccess = true;
-        }
-        catch (Exception e) {
+        do {
+            try {
+                operationService.addOperation(OperationService.OperationType.BankWithdraw, operationDto, getBank());
+                return;
+            }
+            catch (InvalidParameterException e) {
+                withdrawSuccess = true;
+                return;
+            }
+            catch (NotAllowedException e) {
+                return;
+            }
+            catch (Exception e) {
 
+            }
         }
+        while(true);
     }
 
     @Test

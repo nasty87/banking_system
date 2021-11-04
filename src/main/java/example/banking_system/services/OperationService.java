@@ -6,10 +6,9 @@ import example.banking_system.controllers.OperationInfo;
 import example.banking_system.models.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,33 +34,49 @@ public class OperationService {
         BankWithdraw
     }
 
-    @Transactional
+    final static boolean useSelectForUpdate = false;
+
+    @Transactional (isolation = Isolation.REPEATABLE_READ)
     public void addOperation(OperationType operationType, OperationDto operation, UserEntity currentUser)
             throws InvalidParameterException, NotAllowedException {
-        AccountEntity fromAccountDb = operation.getFromAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getFromAccountNumber());
-        AccountEntity toAccountDb = operation.getToAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getToAccountNumber());
+            AccountEntity fromAccountDb = operation.getFromAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getFromAccountNumber());
+            AccountEntity toAccountDb = operation.getToAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getToAccountNumber());
 
-        if (fromAccountDb == null || toAccountDb == null) {
-            throw new InvalidParameterException();
-        }
+            if (fromAccountDb == null || toAccountDb == null) {
+                throw new InvalidParameterException();
+            }
 
-        if (((operationType == OperationType.ClientOperation || operationType == OperationType.BankPut)
-                && fromAccountDb.getUser().getId() != currentUser.getId())
-                || (operationType == OperationType.BankWithdraw
+            if (((operationType == OperationType.ClientOperation || operationType == OperationType.BankPut)
+                    && fromAccountDb.getUser().getId() != currentUser.getId())
+                    || (operationType == OperationType.BankWithdraw
                     && toAccountDb.getUser().getId() != currentUser.getId())) {
-            throw new NotAllowedException();
-        }
+                throw new NotAllowedException();
+            }
 
-        OperationEntity newOperation = new OperationEntity();
-        newOperation.setDateTime(new Date());
-        newOperation.setFromAccount(fromAccountDb);
-        newOperation.setToAccount(toAccountDb);
-        newOperation.setSum(operation.getSum());
+            if (operationType != OperationType.BankPut
+            && fromAccountDb.getBalance().compareTo(operation.getSum()) < 0) {
+                throw new InvalidParameterException();
+            }
 
-        executeOperation(operationType == OperationType.BankPut ? null : fromAccountDb.getId(),
-                operationType == OperationType.BankWithdraw ? null : toAccountDb.getId(),
-                operation.getSum());
-        operationDao.addOperation(newOperation);
+            OperationEntity newOperation = new OperationEntity();
+            newOperation.setDateTime(new Date());
+            newOperation.setFromAccount(fromAccountDb);
+            newOperation.setToAccount(toAccountDb);
+            newOperation.setSum(operation.getSum());
+
+            if (useSelectForUpdate) {
+                executeOperation(operationType == OperationType.BankPut ? null : fromAccountDb.getId(),
+                        operationType == OperationType.BankWithdraw ? null : toAccountDb.getId(),
+                        operation.getSum());
+            } else {
+                if (operationType != OperationType.BankPut) {
+                    fromAccountDb.setBalance(fromAccountDb.getBalance().subtract(operation.getSum()));
+                }
+                if (operationType != OperationType.BankWithdraw) {
+                    toAccountDb.setBalance(toAccountDb.getBalance().add(operation.getSum()));
+                }
+            }
+            operationDao.addOperation(newOperation);
     }
 
     @Transactional
