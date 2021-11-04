@@ -11,7 +11,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
@@ -25,6 +24,50 @@ public class OperationControllerTest {
     private UserService userService;
     @Autowired
     private OperationService operationService;
+
+    protected Role getBankRole() {
+        Role bankRole = new Role();
+        bankRole.setId(2L);
+        bankRole.setName(Role.BankRoleName);
+        return bankRole;
+    }
+
+    protected Role getClientRole() {
+        Role clientRole = new Role();
+        clientRole.setId(3L);
+        clientRole.setName(Role.ClientRoleName);
+        return clientRole;
+    }
+
+    protected UserEntity getBank() {
+        UserEntity bankEntity = new UserEntity();
+        bankEntity.setId(2L);
+        bankEntity.setName("bank");
+        bankEntity.setLogin("bank");
+        bankEntity.setPassword("12345");
+        bankEntity.setRole(getBankRole());
+        return bankEntity;
+    }
+
+    protected UserEntity getClient1() {
+        UserEntity client1 = new UserEntity();
+        client1.setId(3L);
+        client1.setName("client1");
+        client1.setLogin("client1");
+        client1.setPassword("12345");
+        client1.setRole(getClientRole());
+        return client1;
+    }
+
+    protected UserEntity getClient3() {
+        UserEntity client3 = new UserEntity();
+        client3.setId(5L);
+        client3.setName("client3");
+        client3.setLogin("client3");
+        client3.setPassword("12345");
+        client3.setRole(getClientRole());
+        return client3;
+    }
 
     @Before
     public void setup() {
@@ -94,7 +137,6 @@ public class OperationControllerTest {
         }
     }
 
-    @WithMockUser(username = "client1")
     @Test
     public void addValidOperationTest() throws Exception {
         OperationDto operation = new OperationDto();
@@ -102,10 +144,9 @@ public class OperationControllerTest {
         operation.setToAccountNumber("22222222222222222222");
         operation.setSum(new BigDecimal(100));
 
-        operationService.addClientOperation(operation);
+        operationService.addOperation(OperationService.OperationType.ClientOperation, operation, getClient1());
     }
 
-    @WithMockUser(username = "client1")
     @Test
     public void addOperationWithTooBigSumTest() throws Exception {
         OperationDto operation = new OperationDto();
@@ -115,7 +156,7 @@ public class OperationControllerTest {
 
         boolean testPassed = false;
         try {
-            operationService.addClientOperation(operation);
+            operationService.addOperation(OperationService.OperationType.ClientOperation, operation, getClient1());
         }
         catch (InvalidParameterException e){
             testPassed = true;
@@ -124,7 +165,6 @@ public class OperationControllerTest {
 
     }
 
-    @WithMockUser(username = "client3")
     @Test
     public void addOperationWithOtherUser() throws Exception {
         OperationDto operation = new OperationDto();
@@ -134,7 +174,7 @@ public class OperationControllerTest {
 
         boolean testPassed = false;
         try {
-            operationService.addClientOperation(operation);
+            operationService.addOperation(OperationService.OperationType.ClientOperation, operation, getClient3());
         }
         catch (NotAllowedException e){
             testPassed = true;
@@ -143,24 +183,21 @@ public class OperationControllerTest {
 
     }
 
-    @WithMockUser(username = "client3")
     @Test
     public void getBalanceTest() throws Exception {
-        operationService.getBalance("33333333333333333333");
+        operationService.getBalance("33333333333333333333", getClient3());
     }
 
-    @WithMockUser(username = "bank")
     @Test
     public void getBalanceByBankTest() throws Exception {
-        operationService.getBalance("33333333333333333333");
+        operationService.getBalance("33333333333333333333", getBank());
     }
 
-    @WithMockUser(username = "client1")
     @Test
     public void getBalanceByWrongUserTest() throws Exception {
         boolean testPassed = false;
         try {
-            operationService.getBalance("33333333333333333333");
+            operationService.getBalance("33333333333333333333", getClient1());
         }
         catch (NotAllowedException e){
             testPassed = true;
@@ -168,24 +205,21 @@ public class OperationControllerTest {
         assert(testPassed);
     }
 
-    @WithMockUser(username = "client1")
     @Test
     public void getFullHistoryTest() throws Exception {
-        operationService.getHistoryPage("11111111111111111111", -1, 0);
+        operationService.getHistoryPage("11111111111111111111", -1, 0, getClient1());
     }
 
-    @WithMockUser(username = "bank")
     @Test
     public void getFullHistoryByBankTest() throws Exception {
-        operationService.getHistoryPage("11111111111111111111", -1, 0);
+        operationService.getHistoryPage("11111111111111111111", -1, 0, getBank());
     }
 
-    @WithMockUser(username = "client3")
     @Test
     public void getFullHistoryByWrongUserTest() throws Exception {
         boolean testPassed = false;
         try {
-            operationService.getHistoryPage("11111111111111111111", -1, 0);
+            operationService.getHistoryPage("11111111111111111111", -1, 0, getClient3());
         }
         catch (NotAllowedException e){
             testPassed = true;
@@ -194,13 +228,11 @@ public class OperationControllerTest {
 
     }
 
-    @WithMockUser(username = "client1")
     @Test
     public void getPageHistoryTest() throws Exception {
-        operationService.getHistoryPage("11111111111111111111", 1, 2);
+        operationService.getHistoryPage("11111111111111111111", 1, 2, getClient1());
     }
 
-    @WithMockUser(username = "bank")
     @Test
     public void putMoney() throws Exception {
         OperationDto operation = new OperationDto();
@@ -208,10 +240,9 @@ public class OperationControllerTest {
         operation.setToAccountNumber("11111111111111111111");
         operation.setSum(new BigDecimal(100));
         operation.setDateTime(new Date());
-        operationService.addBankOperationPut(operation);
+        operationService.addOperation(OperationService.OperationType.BankPut, operation, getBank());
     }
 
-    @WithMockUser(username = "client1")
     @Test
     public void putMoneyWrongUser() throws Exception {
         OperationDto operation = new OperationDto();
@@ -222,7 +253,7 @@ public class OperationControllerTest {
 
         boolean testPassed = false;
         try {
-            operationService.addBankOperationPut(operation);
+            operationService.addOperation(OperationService.OperationType.BankPut, operation, getClient1());
         }
         catch (NotAllowedException e) {
             testPassed = true;
@@ -230,7 +261,6 @@ public class OperationControllerTest {
         assert (testPassed);
     }
 
-    @WithMockUser(username = "bank")
     @Test
     public void withdrawMoney() throws Exception {
         OperationDto operation = new OperationDto();
@@ -239,10 +269,9 @@ public class OperationControllerTest {
         operation.setSum(new BigDecimal(100));
         operation.setDateTime(new Date());
 
-        operationService.addBankOperationWithdraw(operation);
+        operationService.addOperation(OperationService.OperationType.BankWithdraw, operation, getBank());
     }
 
-    @WithMockUser(username = "client1")
     @Test
     public void withdrawMoneyWrongUser() throws Exception {
         OperationDto operation = new OperationDto();
@@ -253,7 +282,7 @@ public class OperationControllerTest {
 
         boolean testPassed = false;
         try {
-            operationService.addBankOperationWithdraw(operation);
+            operationService.addOperation(OperationService.OperationType.BankWithdraw, operation, getClient1());
         }
         catch (NotAllowedException e) {
             testPassed = true;

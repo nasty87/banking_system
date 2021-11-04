@@ -2,6 +2,7 @@ package example.banking_system.controllers;
 
 import example.banking_system.models.*;
 import example.banking_system.services.OperationService;
+import example.banking_system.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
@@ -18,32 +19,35 @@ public class OperationController {
     @Autowired
     OperationService  operationService;
 
+    @Autowired
+    UserService userService;
+
     @Secured(Role.ClientRoleName)
     @PostMapping(path = "/clients/operations/add", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void addClientOperation(@NotNull @RequestBody OperationDto operation)
             throws InvalidParameterException, NotAllowedException {
-        operationService.addClientOperation(operation);
+        operationService.addOperation(OperationService.OperationType.ClientOperation, operation, userService.getCurrentUser());
     }
 
     @Secured(Role.BankRoleName)
     @PostMapping(path = "/bank/operations/put", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void addBankOperationPut(@NotNull @RequestBody OperationDto operation)
             throws InvalidParameterException, NotAllowedException {
-        operationService.addBankOperationPut(operation);
+        operationService.addOperation(OperationService.OperationType.BankPut, operation, userService.getCurrentUser());
     }
 
     @Secured(Role.BankRoleName)
     @PostMapping(path = "/bank/operations/withdraw", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void addBankOperationWithdraw(@NotNull @RequestBody OperationDto operation)
             throws InvalidParameterException, NotAllowedException {
-        operationService.addBankOperationWithdraw(operation);
+        operationService.addOperation(OperationService.OperationType.BankWithdraw, operation, userService.getCurrentUser());
     }
 
     @Transactional
     @GetMapping(path = "/account/balance")
     public BigDecimal getBalance(@Size(min = 20, max = 20) @RequestParam (value = "accountNumber") String accountNumber)
             throws InvalidParameterException, NotAllowedException {
-        return operationService.getBalance(accountNumber);
+        return operationService.getBalance(accountNumber, userService.getCurrentUser());
     }
 
     @Transactional
@@ -52,7 +56,7 @@ public class OperationController {
                                               @RequestParam (value = "pageNumber", defaultValue = "-1") int pageNumber,
                                               @RequestParam (value = "pageSize", defaultValue = "0") int pageSize)
             throws InvalidParameterException, NotAllowedException {
-        return operationService.getHistoryPage(accountNumber, pageNumber, pageSize);
+        return operationService.getHistoryPage(accountNumber, pageNumber, pageSize, userService.getCurrentUser());
     }
 
 

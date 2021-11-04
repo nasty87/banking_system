@@ -29,10 +29,15 @@ public class OperationService {
     @Autowired
     private UserService userService;
 
+    public enum OperationType {
+        ClientOperation,
+        BankPut,
+        BankWithdraw
+    }
+
     @Transactional
-    public void addClientOperation(OperationDto operation)
+    public void addOperation(OperationType operationType, OperationDto operation, UserEntity currentUser)
             throws InvalidParameterException, NotAllowedException {
-        UserEntity currentUser = userService.getCurrentUser();
         AccountEntity fromAccountDb = operation.getFromAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getFromAccountNumber());
         AccountEntity toAccountDb = operation.getToAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getToAccountNumber());
 
@@ -40,7 +45,10 @@ public class OperationService {
             throw new InvalidParameterException();
         }
 
-        if (fromAccountDb.getUser().getId() != currentUser.getId()) {
+        if (((operationType == OperationType.ClientOperation || operationType == OperationType.BankPut)
+                && fromAccountDb.getUser().getId() != currentUser.getId())
+                || (operationType == OperationType.BankWithdraw
+                    && toAccountDb.getUser().getId() != currentUser.getId())) {
             throw new NotAllowedException();
         }
 
@@ -50,80 +58,23 @@ public class OperationService {
         newOperation.setToAccount(toAccountDb);
         newOperation.setSum(operation.getSum());
 
-        executeOperation(fromAccountDb.getId(), toAccountDb.getId(), operation.getSum());
+        executeOperation(operationType == OperationType.BankPut ? null : fromAccountDb.getId(),
+                operationType == OperationType.BankWithdraw ? null : toAccountDb.getId(),
+                operation.getSum());
         operationDao.addOperation(newOperation);
     }
 
     @Transactional
-    public void addBankOperationPut(OperationDto operation)
+    public BigDecimal getBalance(String accountNumber, UserEntity currentUser)
         throws InvalidParameterException, NotAllowedException {
-        UserEntity currentUser = userService.getCurrentUser();
-        if (!userService.userHasBankRole(currentUser)) {
-            throw new NotAllowedException();
-        }
-
-        AccountEntity fromAccountDb = operation.getFromAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getFromAccountNumber());
-        AccountEntity toAccountDb = operation.getToAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getToAccountNumber());
-
-        if (fromAccountDb == null || toAccountDb == null) {
-            throw new InvalidParameterException();
-        }
-
-        if (fromAccountDb.getUser().getId() != currentUser.getId()) {
-            throw new InvalidParameterException();
-        }
-
-        OperationEntity newOperation = new OperationEntity();
-        newOperation.setDateTime(new Date());
-        newOperation.setFromAccount(fromAccountDb);
-        newOperation.setToAccount(toAccountDb);
-        newOperation.setSum(operation.getSum());
-
-        executeOperation(null, toAccountDb.getId(), operation.getSum());
-        operationDao.addOperation(newOperation);
-    }
-
-    @Transactional
-    public void addBankOperationWithdraw(@NotNull OperationDto operation)
-            throws InvalidParameterException, NotAllowedException {
-        UserEntity currentUser = userService.getCurrentUser();
-
-        if (!userService.userHasBankRole(currentUser)) {
-            throw new NotAllowedException();
-        }
-
-        AccountEntity fromAccountDb = operation.getFromAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getFromAccountNumber());
-        AccountEntity toAccountDb = operation.getToAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getToAccountNumber());
-
-        if (fromAccountDb == null || toAccountDb == null) {
-            throw new InvalidParameterException();
-        }
-
-        if (toAccountDb.getUser().getId() != currentUser.getId()) {
-            throw new InvalidParameterException();
-        }
-
-        OperationEntity newOperation = new OperationEntity();
-        newOperation.setDateTime(new Date());
-        newOperation.setFromAccount(fromAccountDb);
-        newOperation.setToAccount(toAccountDb);
-        newOperation.setSum(operation.getSum());
-
-        executeOperation(fromAccountDb.getId(), null, operation.getSum());
-        operationDao.addOperation(newOperation);
-    }
-
-    @Transactional
-    public BigDecimal getBalance(String accountNumber)
-        throws InvalidParameterException, NotAllowedException {
-        AccountEntity account = checkCanGetAccountInformation(accountNumber, userService.getCurrentUser());
+        AccountEntity account = checkCanGetAccountInformation(accountNumber, currentUser);
         return account.getBalance();
     }
 
     @Transactional
-    public List<OperationInfo> getHistoryPage(String accountNumber, int pageNumber, int pageSize)
+    public List<OperationInfo> getHistoryPage(String accountNumber, int pageNumber, int pageSize, UserEntity currentUser)
             throws InvalidParameterException, NotAllowedException {
-        AccountEntity account = checkCanGetAccountInformation(accountNumber, userService.getCurrentUser());
+        AccountEntity account = checkCanGetAccountInformation(accountNumber, currentUser);
         return toOperationInfoList(operationDao.getOperationHistoryPage(account, pageNumber, pageSize));
     }
 

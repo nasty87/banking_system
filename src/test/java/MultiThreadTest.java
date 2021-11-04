@@ -34,6 +34,23 @@ public class MultiThreadTest {
 
     private boolean withdrawSuccess = false;
 
+    protected Role getBankRole() {
+        Role bankRole = new Role();
+        bankRole.setId(2L);
+        bankRole.setName(Role.BankRoleName);
+        return bankRole;
+    }
+
+    protected UserEntity getBank() {
+        UserEntity bankEntity = new UserEntity();
+        bankEntity.setId(1L);
+        bankEntity.setName("bank");
+        bankEntity.setLogin("bank");
+        bankEntity.setPassword("12345");
+        bankEntity.setRole(getBankRole());
+        return bankEntity;
+    }
+
     @Before
     public void setup() {
         try {
@@ -74,7 +91,6 @@ public class MultiThreadTest {
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
     }
 
-    @WithMockUser(username = "bank")
     public void addOperationPut(int i) {
         OperationDto operationDto = new OperationDto();
         operationDto.setFromAccountNumber("00000000000000000000");
@@ -83,14 +99,13 @@ public class MultiThreadTest {
         operationDto.setDateTime(new Date());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         try {
-            operationService.addBankOperationPut(operationDto);
+            operationService.addOperation(OperationService.OperationType.BankPut, operationDto, getBank());
         }
         catch (Exception e) {
 
         }
     }
 
-    @WithMockUser(username = "bank")
     public void addOperationWithdraw(int i) {
         OperationDto operationDto = new OperationDto();
         operationDto.setFromAccountNumber("11111111111111111111");
@@ -99,7 +114,7 @@ public class MultiThreadTest {
         operationDto.setDateTime(new Date());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         try {
-            operationService.addBankOperationWithdraw(operationDto);
+            operationService.addOperation(OperationService.OperationType.BankWithdraw, operationDto, getBank());
         }
         catch (InvalidParameterException e) {
             withdrawSuccess = true;
@@ -110,20 +125,18 @@ public class MultiThreadTest {
     }
 
     @Test
-    @WithMockUser(username = "bank")
     public void testPut() throws Exception{
         final int threadCount = 5;
-        final BigDecimal sum1 = operationService.getBalance("11111111111111111111");
+        final BigDecimal sum1 = operationService.getBalance("11111111111111111111", getBank());
         authentication = SecurityContextHolder.getContext().getAuthentication();
         IntStream.range(0, threadCount)
                 .parallel()
                 .forEach(this::addOperationPut);
-        BigDecimal sum2 = operationService.getBalance("11111111111111111111");
+        BigDecimal sum2 = operationService.getBalance("11111111111111111111", getBank());
         assert (sum2.equals(sum1.add(new BigDecimal(threadCount))));
     }
 
     @Test
-    @WithMockUser(username = "bank")
     public void testWithdraw() throws Exception{
         final int threadCount = 5;
         authentication = SecurityContextHolder.getContext().getAuthentication();
