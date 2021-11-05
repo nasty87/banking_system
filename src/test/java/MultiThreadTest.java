@@ -29,10 +29,8 @@ public class MultiThreadTest {
     private UserService userService;
     @Autowired
     private OperationService operationService;
-
     @Autowired
     private UserDao userDao;
-
     @Autowired
     private RoleDao roleDao;
 
