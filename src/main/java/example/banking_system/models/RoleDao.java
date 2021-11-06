@@ -3,6 +3,7 @@ package example.banking_system.models;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+// I kept this dao because of ensureRoles method
 @Component
 public class RoleDao {
     @Autowired

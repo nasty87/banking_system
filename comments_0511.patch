@@ -1,0 +1,781 @@
+diff --git a/.gitignore b/.gitignore
+index 2f7896d..15aedc7 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1 +1,2 @@
+ target/
++.idea
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+deleted file mode 100644
+index 26d3352..0000000
+--- a/.idea/.gitignore
++++ /dev/null
+@@ -1,3 +0,0 @@
+-# Default ignored files
+-/shelf/
+-/workspace.xml
+diff --git a/.idea/compiler.xml b/.idea/compiler.xml
+deleted file mode 100644
+index 1c4cb3b..0000000
+--- a/.idea/compiler.xml
++++ /dev/null
+@@ -1,19 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="CompilerConfiguration">
+-    <annotationProcessing>
+-      <profile default="true" name="Default" enabled="true" />
+-      <profile name="Maven default annotation processors profile" enabled="true">
+-        <sourceOutputDir name="target/generated-sources/annotations" />
+-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+-        <outputRelativeToContentRoot value="true" />
+-        <module name="banking_system" />
+-      </profile>
+-    </annotationProcessing>
+-  </component>
+-  <component name="JavacSettings">
+-    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+-      <module name="banking_system" options="-parameters" />
+-    </option>
+-  </component>
+-</project>
+\ No newline at end of file
+diff --git a/.idea/encodings.xml b/.idea/encodings.xml
+deleted file mode 100644
+index 63e9001..0000000
+--- a/.idea/encodings.xml
++++ /dev/null
+@@ -1,6 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="Encoding">
+-    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+-  </component>
+-</project>
+\ No newline at end of file
+diff --git a/.idea/jarRepositories.xml b/.idea/jarRepositories.xml
+deleted file mode 100644
+index 712ab9d..0000000
+--- a/.idea/jarRepositories.xml
++++ /dev/null
+@@ -1,20 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="RemoteRepositoriesConfiguration">
+-    <remote-repository>
+-      <option name="id" value="central" />
+-      <option name="name" value="Central Repository" />
+-      <option name="url" value="https://repo.maven.apache.org/maven2" />
+-    </remote-repository>
+-    <remote-repository>
+-      <option name="id" value="central" />
+-      <option name="name" value="Maven Central repository" />
+-      <option name="url" value="https://repo1.maven.org/maven2" />
+-    </remote-repository>
+-    <remote-repository>
+-      <option name="id" value="jboss.community" />
+-      <option name="name" value="JBoss Community repository" />
+-      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
+-    </remote-repository>
+-  </component>
+-</project>
+\ No newline at end of file
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+deleted file mode 100644
+index 82dbec8..0000000
+--- a/.idea/misc.xml
++++ /dev/null
+@@ -1,14 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="ExternalStorageConfigurationManager" enabled="true" />
+-  <component name="MavenProjectsManager">
+-    <option name="originalFiles">
+-      <list>
+-        <option value="$PROJECT_DIR$/pom.xml" />
+-      </list>
+-    </option>
+-  </component>
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK">
+-    <output url="file://$PROJECT_DIR$/out" />
+-  </component>
+-</project>
+\ No newline at end of file
+diff --git a/.idea/uiDesigner.xml b/.idea/uiDesigner.xml
+deleted file mode 100644
+index e96534f..0000000
+--- a/.idea/uiDesigner.xml
++++ /dev/null
+@@ -1,124 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="Palette2">
+-    <group name="Swing">
+-      <item class="com.intellij.uiDesigner.HSpacer" tooltip-text="Horizontal Spacer" icon="/com/intellij/uiDesigner/icons/hspacer.png" removable="false" auto-create-binding="false" can-attach-label="false">
+-        <default-constraints vsize-policy="1" hsize-policy="6" anchor="0" fill="1" />
+-      </item>
+-      <item class="com.intellij.uiDesigner.VSpacer" tooltip-text="Vertical Spacer" icon="/com/intellij/uiDesigner/icons/vspacer.png" removable="false" auto-create-binding="false" can-attach-label="false">
+-        <default-constraints vsize-policy="6" hsize-policy="1" anchor="0" fill="2" />
+-      </item>
+-      <item class="javax.swing.JPanel" icon="/com/intellij/uiDesigner/icons/panel.png" removable="false" auto-create-binding="false" can-attach-label="false">
+-        <default-constraints vsize-policy="3" hsize-policy="3" anchor="0" fill="3" />
+-      </item>
+-      <item class="javax.swing.JScrollPane" icon="/com/intellij/uiDesigner/icons/scrollPane.png" removable="false" auto-create-binding="false" can-attach-label="true">
+-        <default-constraints vsize-policy="7" hsize-policy="7" anchor="0" fill="3" />
+-      </item>
+-      <item class="javax.swing.JButton" icon="/com/intellij/uiDesigner/icons/button.png" removable="false" auto-create-binding="true" can-attach-label="false">
+-        <default-constraints vsize-policy="0" hsize-policy="3" anchor="0" fill="1" />
+-        <initial-values>
+-          <property name="text" value="Button" />
+-        </initial-values>
+-      </item>
+-      <item class="javax.swing.JRadioButton" icon="/com/intellij/uiDesigner/icons/radioButton.png" removable="false" auto-create-binding="true" can-attach-label="false">
+-        <default-constraints vsize-policy="0" hsize-policy="3" anchor="8" fill="0" />
+-        <initial-values>
+-          <property name="text" value="RadioButton" />
+-        </initial-values>
+-      </item>
+-      <item class="javax.swing.JCheckBox" icon="/com/intellij/uiDesigner/icons/checkBox.png" removable="false" auto-create-binding="true" can-attach-label="false">
+-        <default-constraints vsize-policy="0" hsize-policy="3" anchor="8" fill="0" />
+-        <initial-values>
+-          <property name="text" value="CheckBox" />
+-        </initial-values>
+-      </item>
+-      <item class="javax.swing.JLabel" icon="/com/intellij/uiDesigner/icons/label.png" removable="false" auto-create-binding="false" can-attach-label="false">
+-        <default-constraints vsize-policy="0" hsize-policy="0" anchor="8" fill="0" />
+-        <initial-values>
+-          <property name="text" value="Label" />
+-        </initial-values>
+-      </item>
+-      <item class="javax.swing.JTextField" icon="/com/intellij/uiDesigner/icons/textField.png" removable="false" auto-create-binding="true" can-attach-label="true">
+-        <default-constraints vsize-policy="0" hsize-policy="6" anchor="8" fill="1">
+-          <preferred-size width="150" height="-1" />
+-        </default-constraints>
+-      </item>
+-      <item class="javax.swing.JPasswordField" icon="/com/intellij/uiDesigner/icons/passwordField.png" removable="false" auto-create-binding="true" can-attach-label="true">
+-        <default-constraints vsize-policy="0" hsize-policy="6" anchor="8" fill="1">
+-          <preferred-size width="150" height="-1" />
+-        </default-constraints>
+-      </item>
+-      <item class="javax.swing.JFormattedTextField" icon="/com/intellij/uiDesigner/icons/formattedTextField.png" removable="false" auto-create-binding="true" can-attach-label="true">
+-        <default-constraints vsize-policy="0" hsize-policy="6" anchor="8" fill="1">
+-          <preferred-size width="150" height="-1" />
+-        </default-constraints>
+-      </item>
+-      <item class="javax.swing.JTextArea" icon="/com/intellij/uiDesigner/icons/textArea.png" removable="false" auto-create-binding="true" can-attach-label="true">
+-        <default-constraints vsize-policy="6" hsize-policy="6" anchor="0" fill="3">
+-          <preferred-size width="150" height="50" />
+-        </default-constraints>
+-      </item>
+-      <item class="javax.swing.JTextPane" icon="/com/intellij/uiDesigner/icons/textPane.png" removable="false" auto-create-binding="true" can-attach-label="true">
+-        <default-constraints vsize-policy="6" hsize-policy="6" anchor="0" fill="3">
+-          <preferred-size width="150" height="50" />
+-        </default-constraints>
+-      </item>
+-      <item class="javax.swing.JEditorPane" icon="/com/intellij/uiDesigner/icons/editorPane.png" removable="false" auto-create-binding="true" can-attach-label="true">
+-        <default-constraints vsize-policy="6" hsize-policy="6" anchor="0" fill="3">
+-          <preferred-size width="150" height="50" />
+-        </default-constraints>
+-      </item>
+-      <item class="javax.swing.JComboBox" icon="/com/intellij/uiDesigner/icons/comboBox.png" removable="false" auto-create-binding="true" can-attach-label="true">
+-        <default-constraints vsize-policy="0" hsize-policy="2" anchor="8" fill="1" />
+-      </item>
+-      <item class="javax.swing.JTable" icon="/com/intellij/uiDesigner/icons/table.png" removable="false" auto-create-binding="true" can-attach-label="false">
+-        <default-constraints vsize-policy="6" hsize-policy="6" anchor="0" fill="3">
+-          <preferred-size width="150" height="50" />
+-        </default-constraints>
+-      </item>
+-      <item class="javax.swing.JList" icon="/com/intellij/uiDesigner/icons/list.png" removable="false" auto-create-binding="true" can-attach-label="false">
+-        <default-constraints vsize-policy="6" hsize-policy="2" anchor="0" fill="3">
+-          <preferred-size width="150" height="50" />
+-        </default-constraints>
+-      </item>
+-      <item class="javax.swing.JTree" icon="/com/intellij/uiDesigner/icons/tree.png" removable="false" auto-create-binding="true" can-attach-label="false">
+-        <default-constraints vsize-policy="6" hsize-policy="6" anchor="0" fill="3">
+-          <preferred-size width="150" height="50" />
+-        </default-constraints>
+-      </item>
+-      <item class="javax.swing.JTabbedPane" icon="/com/intellij/uiDesigner/icons/tabbedPane.png" removable="false" auto-create-binding="true" can-attach-label="false">
+-        <default-constraints vsize-policy="3" hsize-policy="3" anchor="0" fill="3">
+-          <preferred-size width="200" height="200" />
+-        </default-constraints>
+-      </item>
+-      <item class="javax.swing.JSplitPane" icon="/com/intellij/uiDesigner/icons/splitPane.png" removable="false" auto-create-binding="false" can-attach-label="false">
+-        <default-constraints vsize-policy="3" hsize-policy="3" anchor="0" fill="3">
+-          <preferred-size width="200" height="200" />
+-        </default-constraints>
+-      </item>
+-      <item class="javax.swing.JSpinner" icon="/com/intellij/uiDesigner/icons/spinner.png" removable="false" auto-create-binding="true" can-attach-label="true">
+-        <default-constraints vsize-policy="0" hsize-policy="6" anchor="8" fill="1" />
+-      </item>
+-      <item class="javax.swing.JSlider" icon="/com/intellij/uiDesigner/icons/slider.png" removable="false" auto-create-binding="true" can-attach-label="false">
+-        <default-constraints vsize-policy="0" hsize-policy="6" anchor="8" fill="1" />
+-      </item>
+-      <item class="javax.swing.JSeparator" icon="/com/intellij/uiDesigner/icons/separator.png" removable="false" auto-create-binding="false" can-attach-label="false">
+-        <default-constraints vsize-policy="6" hsize-policy="6" anchor="0" fill="3" />
+-      </item>
+-      <item class="javax.swing.JProgressBar" icon="/com/intellij/uiDesigner/icons/progressbar.png" removable="false" auto-create-binding="true" can-attach-label="false">
+-        <default-constraints vsize-policy="0" hsize-policy="6" anchor="0" fill="1" />
+-      </item>
+-      <item class="javax.swing.JToolBar" icon="/com/intellij/uiDesigner/icons/toolbar.png" removable="false" auto-create-binding="false" can-attach-label="false">
+-        <default-constraints vsize-policy="0" hsize-policy="6" anchor="0" fill="1">
+-          <preferred-size width="-1" height="20" />
+-        </default-constraints>
+-      </item>
+-      <item class="javax.swing.JToolBar$Separator" icon="/com/intellij/uiDesigner/icons/toolbarSeparator.png" removable="false" auto-create-binding="false" can-attach-label="false">
+-        <default-constraints vsize-policy="0" hsize-policy="0" anchor="0" fill="1" />
+-      </item>
+-      <item class="javax.swing.JScrollBar" icon="/com/intellij/uiDesigner/icons/scrollbar.png" removable="false" auto-create-binding="true" can-attach-label="false">
+-        <default-constraints vsize-policy="6" hsize-policy="0" anchor="0" fill="2" />
+-      </item>
+-    </group>
+-  </component>
+-</project>
+\ No newline at end of file
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+deleted file mode 100644
+index 94a25f7..0000000
+--- a/.idea/vcs.xml
++++ /dev/null
+@@ -1,6 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="VcsDirectoryMappings">
+-    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+-  </component>
+-</project>
+\ No newline at end of file
+diff --git a/src/main/java/example/banking_system/controllers/InvalidParameterException.java b/src/main/java/example/banking_system/controllers/InvalidParameterException.java
+index a793c29..00ed8a1 100644
+--- a/src/main/java/example/banking_system/controllers/InvalidParameterException.java
++++ b/src/main/java/example/banking_system/controllers/InvalidParameterException.java
+@@ -1,4 +1,6 @@
+ package example.banking_system.controllers;
+ 
++//TODO consider making it runtime and get rid of unnecessary throws
++// in services we make checked only those exception which we might recover from
+ public class InvalidParameterException extends Exception{
+ }
+diff --git a/src/main/java/example/banking_system/controllers/NotAllowedException.java b/src/main/java/example/banking_system/controllers/NotAllowedException.java
+index 97617aa..b39c384 100644
+--- a/src/main/java/example/banking_system/controllers/NotAllowedException.java
++++ b/src/main/java/example/banking_system/controllers/NotAllowedException.java
+@@ -1,4 +1,5 @@
+ package example.banking_system.controllers;
+ 
+-public class NotAllowedException extends Exception{
++//TODO consider making it runtime and get rid of unnecessary throws
++public class NotAllowedException extends Exception {
+ }
+diff --git a/src/main/java/example/banking_system/controllers/OperationController.java b/src/main/java/example/banking_system/controllers/OperationController.java
+index e7df224..278ab2a 100644
+--- a/src/main/java/example/banking_system/controllers/OperationController.java
++++ b/src/main/java/example/banking_system/controllers/OperationController.java
+@@ -59,6 +59,7 @@ public class OperationController {
+         return operationService.getHistoryPage(accountNumber, pageNumber, pageSize, userService.getCurrentUser());
+     }
+ 
++    //TODO => What is this business logic doing in controller again?!
+     protected void addOperationLoop(OperationService.OperationType operationType, OperationDto operation, UserEntity currentUser)
+         throws InvalidParameterException, NotAllowedException {
+         int attemptsCount = 10;
+diff --git a/src/main/java/example/banking_system/models/AccountDto.java b/src/main/java/example/banking_system/models/AccountDto.java
+index ac744e4..6365085 100644
+--- a/src/main/java/example/banking_system/models/AccountDto.java
++++ b/src/main/java/example/banking_system/models/AccountDto.java
+@@ -23,4 +23,13 @@ public class AccountDto implements Account{
+     @Min(value = 0, message= "Balance cannot be negative")
+     private BigDecimal balance;
+ 
++    //TODO this like, and use it everywhere
++    public static AccountDto from(Account acc){
++        AccountDto acc_ = new AccountDto();
++        acc_.setAccountNumber(acc.getAccountNumber());
++        acc_.setBalance(acc.getBalance());
++        acc_.setCreationDate(acc.getCreationDate());
++        return acc_;
++    }
++
+ }
+\ No newline at end of file
+diff --git a/src/main/java/example/banking_system/models/OperationDao.java b/src/main/java/example/banking_system/models/OperationDao.java
+index e4b7a02..4c2addc 100644
+--- a/src/main/java/example/banking_system/models/OperationDao.java
++++ b/src/main/java/example/banking_system/models/OperationDao.java
+@@ -24,6 +24,8 @@ public class OperationDao {
+ 
+ 
+     public List<OperationEntity> getOperationHistoryPage(@NotNull AccountEntity account, int pageNumber, int pageSize) {
++        //TODO {}
++        //TODO we don't need all these daos in your case, just use Repository in services directly
+         if (pageNumber >= 0)
+             return operationRepository.getOperationHistory(account.getId(), PageRequest.of(pageNumber, pageSize));
+         else
+diff --git a/src/main/java/example/banking_system/services/OperationService.java b/src/main/java/example/banking_system/services/OperationService.java
+index 1989e72..7107b14 100644
+--- a/src/main/java/example/banking_system/services/OperationService.java
++++ b/src/main/java/example/banking_system/services/OperationService.java
+@@ -4,6 +4,7 @@ import example.banking_system.controllers.InvalidParameterException;
+ import example.banking_system.controllers.NotAllowedException;
+ import example.banking_system.controllers.OperationInfo;
+ import example.banking_system.models.*;
++import lombok.extern.log4j.Log4j2;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Isolation;
+@@ -15,6 +16,7 @@ import java.util.Date;
+ import java.util.List;
+ 
+ @Service
++@Log4j2
+ public class OperationService {
+     @Autowired
+     private UserDao userDao;
+@@ -29,59 +31,69 @@ public class OperationService {
+     private UserService userService;
+ 
+     public enum OperationType {
++        //TODO please, check https://google.github.io/styleguide/javaguide.html#s4.8.1-enum-classes
++        // And read all that codestyle, which is mostly a standard, and try to follow
+         ClientOperation,
+         BankPut,
+         BankWithdraw
+     }
+ 
++    //make private, use most narrow access modifier, if otherwise is not justified
++    //check google codestyle as well
+     final static boolean useSelectForUpdate = false;
+ 
+     @Transactional (isolation = Isolation.REPEATABLE_READ)
+     public void addOperation(OperationType operationType, OperationDto operation, UserEntity currentUser)
+             throws InvalidParameterException, NotAllowedException {
+-            AccountEntity fromAccountDb = operation.getFromAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getFromAccountNumber());
+-            AccountEntity toAccountDb = operation.getToAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getToAccountNumber());
++        AccountEntity fromAccountDb = operation.getFromAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getFromAccountNumber());
++        AccountEntity toAccountDb = operation.getToAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getToAccountNumber());
+ 
+-            if (fromAccountDb == null || toAccountDb == null) {
+-                throw new InvalidParameterException();
+-            }
++        if (fromAccountDb == null || toAccountDb == null) {
++            throw new InvalidParameterException();
++        }
+ 
+-            if (((operationType == OperationType.ClientOperation || operationType == OperationType.BankPut)
+-                    && fromAccountDb.getUser().getId() != currentUser.getId())
+-                    || (operationType == OperationType.BankWithdraw
+-                    && toAccountDb.getUser().getId() != currentUser.getId())) {
+-                throw new NotAllowedException();
+-            }
+ 
+-            if (operationType != OperationType.BankPut
+-            && fromAccountDb.getBalance().compareTo(operation.getSum()) < 0) {
+-                throw new InvalidParameterException();
+-            }
++        if (((operationType == OperationType.ClientOperation || operationType == OperationType.BankPut)
++                //TODO check comparisons != vs equals
++                && fromAccountDb.getUser().getId() != currentUser.getId())
++                || (operationType == OperationType.BankWithdraw
++                && toAccountDb.getUser().getId() != currentUser.getId())) {
++            throw new NotAllowedException();
++        }
++
++        if (operationType != OperationType.BankPut
++                && fromAccountDb.getBalance().compareTo(operation.getSum()) < 0) {
++            //TODO this is definitely not a InvalidParameter, but rather InsufficientFundsException
++            throw new InvalidParameterException();
++        }
+ 
+-            OperationEntity newOperation = new OperationEntity();
+-            newOperation.setDateTime(new Date());
+-            newOperation.setFromAccount(fromAccountDb);
+-            newOperation.setToAccount(toAccountDb);
+-            newOperation.setSum(operation.getSum());
+-
+-            if (useSelectForUpdate) {
+-                executeOperation(operationType == OperationType.BankPut ? null : fromAccountDb.getId(),
+-                        operationType == OperationType.BankWithdraw ? null : toAccountDb.getId(),
+-                        operation.getSum());
+-            } else {
+-                if (operationType != OperationType.BankPut) {
+-                    fromAccountDb.setBalance(fromAccountDb.getBalance().subtract(operation.getSum()));
+-                }
+-                if (operationType != OperationType.BankWithdraw) {
+-                    toAccountDb.setBalance(toAccountDb.getBalance().add(operation.getSum()));
+-                }
++        OperationEntity newOperation = new OperationEntity();
++        newOperation.setDateTime(new Date());
++        newOperation.setFromAccount(fromAccountDb);
++        newOperation.setToAccount(toAccountDb);
++        newOperation.setSum(operation.getSum());
++
++        if (useSelectForUpdate) {
++            //TODO What's the point of separating selectForUpdate logic by this bool config param, while this method is anyway in repeatable_read?
++            //you need to do it then outside of repeatable_read
++            //and make selects for update
++            executeOperation(operationType == OperationType.BankPut ? null : fromAccountDb.getId(),
++                    operationType == OperationType.BankWithdraw ? null : toAccountDb.getId(),
++                    operation.getSum());
++        } else {
++            if (operationType != OperationType.BankPut) {
++                fromAccountDb.setBalance(fromAccountDb.getBalance().subtract(operation.getSum()));
+             }
+-            operationDao.addOperation(newOperation);
++            if (operationType != OperationType.BankWithdraw) {
++                toAccountDb.setBalance(toAccountDb.getBalance().add(operation.getSum()));
++            }
++        }
++        operationDao.addOperation(newOperation);
+     }
+ 
+     @Transactional
+     public BigDecimal getBalance(String accountNumber, UserEntity currentUser)
+-        throws InvalidParameterException, NotAllowedException {
++            throws InvalidParameterException, NotAllowedException {
+         AccountEntity account = checkCanGetAccountInformation(accountNumber, currentUser);
+         return account.getBalance();
+     }
+@@ -93,26 +105,38 @@ public class OperationService {
+         return toOperationInfoList(operationDao.getOperationHistoryPage(account, pageNumber, pageSize));
+     }
+ 
++    //TODO ideally we need an interface for service. And this protected seems superfluous. We aren't really going to extend this, private is fine.
++    // make private, if used only inside this class
+     protected AccountEntity checkCanGetAccountInformation(String accountNumber, UserEntity currentUser)
+             throws InvalidParameterException, NotAllowedException {
+         AccountEntity accountFromDb = accountDao.findByAccountNumber(accountNumber);
+         if (accountFromDb == null) {
++            //TODO Rather entity not found exception here
+             throw new InvalidParameterException();
+         }
+         UserEntity accountUser = accountFromDb.getUser();
+         if (accountUser == null) {
++            //TODO user is NOT nullable by JPA scheme, what is the point? If we get this exception, this is not about invalid parameter either. Clear semantics is super-important!
+             throw new InvalidParameterException();
+         }
+         if (!userService.userHasBankRole(currentUser) &&
+-            currentUser.getId() != accountUser.getId()) {
++                //TODO Please, refresh what is != vs .equals() in Java and how we do comparisons
++                //(*)And try to find out why this check actually worked in your UT
++                currentUser.getId() != accountUser.getId()) {
+             throw new NotAllowedException();
+         }
+-        return  accountFromDb;
++        return accountFromDb;
+     }
++
+     protected List<OperationInfo> toOperationInfoList(List<OperationEntity> operations) {
+         List<OperationInfo> res = new ArrayList<>();
+-        for (OperationEntity operation: operations) {
++        for (OperationEntity operation : operations) {
+             OperationInfo operationInfo = new OperationInfo();
++            //TODO you might create an interface for these two, OperationDTO, and put in it
++            //public static final from(Operation op){
++            // newOp = new OperationDTO();
++            // ...newOp.set(op.get...);
++            // }
+             operationInfo.setDate(operation.getDateTime());
+             operationInfo.setFromAccount(operation.getFromAccount().getAccountNumber());
+             operationInfo.setToAccount(operation.getToAccount().getAccountNumber());
+@@ -123,7 +147,14 @@ public class OperationService {
+     }
+ 
+     public void executeOperation(Long fromAccountId, Long toAccountId, BigDecimal sum) throws InvalidParameterException {
+-        System.out.println("executeOperation");
++        //added @Log4j2, use
++        log.info("Executing operation:...");
++        //not sout
++//        System.out.println("executeOperation");
++
++        //TODO consider a situation, when A to B and B to A do concurrent transfers.
++        // And they happen to select balance for update. Would that lead to a deadlock? How would we fix that?
++        //Write a UT for that case
+         BigDecimal fromBalance = null;
+         BigDecimal toBalance = null;
+         if (fromAccountId != null) {
+@@ -147,6 +178,7 @@ public class OperationService {
+ 
+     @Transactional
+     public void clearDataBase() {
++        //TODO this is very much dangerous method. And we actually don't need it anywhere outside UT -> move to base UT class.
+         accountDao.deleteAll();
+         userDao.deleteAll();
+         operationDao.deleteAll();
+diff --git a/src/main/java/example/banking_system/services/UserService.java b/src/main/java/example/banking_system/services/UserService.java
+index 6aa2821..7254fb0 100644
+--- a/src/main/java/example/banking_system/services/UserService.java
++++ b/src/main/java/example/banking_system/services/UserService.java
+@@ -78,6 +78,9 @@ public class UserService implements UserDetailsService {
+     @Transactional
+     public UserEntity getCurrentUser() {
+         String currentUserName = SecurityContextHolder.getContext().getAuthentication().getName();
++        //We dont want to make a separate DB call to get user. We would like to get it's ID, and that would be enough.
++        //Hence we need to save ids, not logins in security context. But let's skip this, because setting spring security
++        //correctly might be very hard
+         return userDao.findUserByLogin(currentUserName);
+     }
+ 
+diff --git a/src/main/resources/application.properties b/src/main/resources/application.properties
+index cdd211f..3f23179 100644
+--- a/src/main/resources/application.properties
++++ b/src/main/resources/application.properties
+@@ -7,5 +7,6 @@ spring.datasource.password=123
+ spring.jpa.hibernate.ddl-auto=create
+ hibernate.hbm2ddl.auto=create
+ hibernate.dialect=org.hibernate.dialect.PostgreSQL10Dialect
++spring.jpa.show-sql=true
+ #Jwt
+ jwt.secret=secretkey
+\ No newline at end of file
+diff --git a/src/test/java/MultiThreadTest.java b/src/test/java/MultiThreadTest.java
+index 53cab9b..f05034e 100644
+--- a/src/test/java/MultiThreadTest.java
++++ b/src/test/java/MultiThreadTest.java
+@@ -23,7 +23,9 @@ import java.util.stream.IntStream;
+ @RunWith(JUnitPlatform.class)
+ @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+ @AutoConfigureMockMvc
+-@EnableAsync
++//TODO what is this for?
++//@EnableAsync
++//TODO MultiThreadTest is very bad naming for test class. Move this to OperationServiceTest(and rename OperationControllerTest to OperationServiceTest)
+ public class MultiThreadTest {
+     @Autowired
+     private UserService userService;
+@@ -59,6 +61,7 @@ public class MultiThreadTest {
+     }
+ 
+     @BeforeEach
++    //TODO if you're duplicating logic among test - make base test class
+     public void setup() {
+         try {
+             operationService.clearDataBase();
+@@ -102,8 +105,8 @@ public class MultiThreadTest {
+             userService.addUser(bankUser);
+             userService.addUser(clientUser1);
+             userService.addUser(clientUser2);
+-        }
+-        catch (Exception e) {
++        } catch (Exception e) {
++            //TODO actually you're better to rethrow IllegalStateException, because UT will fail and you would have to guess why
+             /// do nothing
+         }
+     }
+@@ -120,21 +123,20 @@ public class MultiThreadTest {
+         operationDto.setSum(new BigDecimal(1));
+         operationDto.setDateTime(new Date());
+ 
++        //TODO duplicating with method in controller. Do not copy business logic from service, you need to test logic already there
+         int attemptsCount = 10;
+         do {
+             try {
+                 --attemptsCount;
+                 operationService.addOperation(OperationService.OperationType.BankPut, operationDto, getBank());
+                 return;
+-            }
+-            catch (InvalidParameterException | NotAllowedException e) {
++            } catch (InvalidParameterException | NotAllowedException e) {
+                 return;
+-            }
+-            catch (Exception e) {
++            } catch (Exception e) {
+                 // nothing
+             }
+         }
+-        while(attemptsCount != 0);
++        while (attemptsCount != 0);
+     }
+ 
+     @Test
+@@ -155,21 +157,20 @@ public class MultiThreadTest {
+         operationDto.setSum(new BigDecimal(10000 * (i + 1)));
+         operationDto.setDateTime(new Date());
+ 
++        //TODO duplication
+         int attemptsCount = 10;
+         do {
+             try {
+                 --attemptsCount;
+                 operationService.addOperation(OperationService.OperationType.BankWithdraw, operationDto, getBank());
+                 return;
+-            }
+-            catch (InvalidParameterException | NotAllowedException e) {
++            } catch (InvalidParameterException | NotAllowedException e) {
+                 return;
+-            }
+-            catch (Exception e) {
++            } catch (Exception e) {
+                 // nothing
+             }
+         }
+-        while(attemptsCount != 0);
++        while (attemptsCount != 0);
+     }
+ 
+     @Test
+@@ -209,27 +210,30 @@ public class MultiThreadTest {
+     public void addClientOperation(int i) {
+         boolean even = (i % 2 == 0);
+         OperationDto operation = (even ? create1to2Operation() : create2o1Operation());
+-
+-        int attemptsCount = 20;
++        //TODO let's test with 1
++        int attemptsCount = 1;
+         do {
+             try {
+                 --attemptsCount;
+                 operationService.addOperation(OperationService.OperationType.ClientOperation, operation, even ? getClient1() : getClient2());
+                 return;
+-            }
+-            catch (InvalidParameterException | NotAllowedException e) {
++            } catch (InvalidParameterException | NotAllowedException e) {
+                 return;
+-            }
+-            catch (Exception e) {
++            } catch (Exception e) {
+                 // nothing
+             }
+         }
+-        while(attemptsCount != 0);
++        while (attemptsCount != 0);
+     }
+ 
+     @Test
+-    public void testClientOperations() throws Exception{
+-        final int threadCount = 6;
++    public void testClientOperations() throws Exception {
++        //TODO these are not threadCount, but tasks
++        //TODO check with this amount(10 or 100) please, and 1-2 retries -> it fails then. When 20 attempts, ok, just increase amount of threadCount to 50, and it will take all the time of earth to finish
++
++        // TODO look https://www.postgresql.org/docs/9.4/explicit-locking.html 13.3.4 Deadlocks
++        // you get deadlocks here, when A to B and B to A in the same time.
++        final int threadCount = 10;
+         assert (threadCount % 2 == 0);
+         IntStream.range(0, threadCount)
+                 .parallel()
+@@ -240,8 +244,14 @@ public class MultiThreadTest {
+         operationDto.setToAccountNumber(bankAccountNumber);
+         operationDto.setSum(new BigDecimal(1));
+         operationDto.setDateTime(new Date());
+-        Assert.assertEquals(operationService.getBalance(client1AccountNumber, getClient1()),
+-                operationService.getBalance(client2AccountNumber, getClient2()).add(new BigDecimal(threadCount)));
++        //TODO this logic why you get this number is unclear. You need to get that from 4 methods
++        // threadCount must be even,
++        // there are 1 and 2 sums A to B and B to A
++        // and the result differs threadCount*(2-1)
++        // Isn't there a simpler solution which is easier to read and follow?
++        Assert.assertEquals(operationService.getBalance(client2AccountNumber, getClient2()).add(new BigDecimal(threadCount)),
++                operationService.getBalance(client1AccountNumber, getClient1()));
++        //TODO don't confuse expected and actual arguments
+     }
+ 
+ }
+diff --git a/src/test/java/OperationControllerTest.java b/src/test/java/OperationControllerTest.java
+index 4127556..7d7084a 100644
+--- a/src/test/java/OperationControllerTest.java
++++ b/src/test/java/OperationControllerTest.java
+@@ -42,7 +42,7 @@ public class OperationControllerTest {
+     final static String client1Name = "client1";
+     final static String client2Name = "client2";
+ 
+-    final static BigDecimal startBalance = new BigDecimal(10000.00);
++    final static BigDecimal startBalance = new BigDecimal("10000.00");
+ 
+     protected UserEntity getBank() {
+         return userDao.findUserByLogin(bankName);
+@@ -57,6 +57,7 @@ public class OperationControllerTest {
+     }
+ 
+     @BeforeEach
++    //TODO do we really want to recreate all the accs every test?
+     public void setup() {
+         try {
+             operationService.clearDataBase();
+@@ -100,14 +101,13 @@ public class OperationControllerTest {
+             userService.addUser(bankUser);
+             userService.addUser(clientUser1);
+             userService.addUser(clientUser2);
+-        }
+-        catch (Exception e) {
++        } catch (Exception e) {
+             /// do nothing
+         }
+     }
+ 
+     @Test
+-    public void testAllowAddOperation() throws Exception{
++    public void testAllowAddOperation() throws Exception {
+         OperationDto putOperation = new OperationDto();
+         putOperation.setFromAccountNumber(bankAccountNumber);
+         putOperation.setToAccountNumber(client1AccountNumber);
+@@ -115,7 +115,8 @@ public class OperationControllerTest {
+         putOperation.setDateTime(new Date());
+ 
+         operationService.addOperation(OperationService.OperationType.BankPut, putOperation, getBank());
+-        Assert.assertThrows(NotAllowedException.class, () -> operationService.addOperation(OperationService.OperationType.BankPut, putOperation, getClient1()));
++        Assert.assertThrows("Please, add some description for failed asserts",
++                NotAllowedException.class, () -> operationService.addOperation(OperationService.OperationType.BankPut, putOperation, getClient1()));
+ 
+         OperationDto withdrawOperation = new OperationDto();
+         withdrawOperation.setFromAccountNumber(client1AccountNumber);
+@@ -129,7 +130,7 @@ public class OperationControllerTest {
+         OperationDto clientOperation = new OperationDto();
+         clientOperation.setFromAccountNumber(client1AccountNumber);
+         clientOperation.setToAccountNumber(client2AccountNumber);
+-        clientOperation.setSum(new BigDecimal(1));
++        clientOperation.setSum(BigDecimal.ONE);
+         clientOperation.setDateTime(new Date());
+ 
+         operationService.addOperation(OperationService.OperationType.ClientOperation, clientOperation, getClient1());
+@@ -138,14 +139,14 @@ public class OperationControllerTest {
+     }
+ 
+     @Test
+-    public void testAllowGetBalance() throws Exception{
++    public void testAllowGetBalance() throws Exception {
+         operationService.getBalance(client1AccountNumber, getClient1());
+         operationService.getBalance(client1AccountNumber, getBank());
+         Assert.assertThrows(NotAllowedException.class, () -> operationService.getBalance(client1AccountNumber, getClient2()));
+     }
+ 
+     @Test
+-    public void testAllowGetHistory() throws Exception{
++    public void testAllowGetHistory() throws Exception {
+         OperationDto clientOperation = new OperationDto();
+         clientOperation.setFromAccountNumber(client1AccountNumber);
+         clientOperation.setToAccountNumber(client2AccountNumber);
+@@ -155,7 +156,7 @@ public class OperationControllerTest {
+         operationService.addOperation(OperationService.OperationType.ClientOperation, clientOperation, getClient1());
+ 
+         operationService.getHistoryPage(client1AccountNumber, 1, 1, getClient1());
+-        operationService.getHistoryPage(client1AccountNumber, 1, 1,  getBank());
++        operationService.getHistoryPage(client1AccountNumber, 1, 1, getBank());
+         Assert.assertThrows(NotAllowedException.class, () -> operationService.getHistoryPage(client1AccountNumber, 1, 1, getClient2()));
+     }
+ 
+@@ -167,7 +168,7 @@ public class OperationControllerTest {
+ 
+     @Test
+     public void testClientOperation() throws Exception {
+-        final BigDecimal sum = new BigDecimal(1.00);
++        final BigDecimal sum = BigDecimal.ONE;
+ 
+         OperationDto clientOperation = new OperationDto();
+         clientOperation.setFromAccountNumber(client1AccountNumber);
+@@ -178,6 +179,7 @@ public class OperationControllerTest {
+         operationService.addOperation(OperationService.OperationType.ClientOperation, clientOperation, getClient1());
+ 
+         Assert.assertEquals(operationService.getBalance(client1AccountNumber, getClient1()).toBigInteger(), startBalance.subtract(sum).toBigInteger());
++        //TODO where do we check that client2 received that sum? And why cast to bigint? What if we got 0.5 miss by the way?
+     }
+ 
+     @Test
+@@ -222,6 +224,8 @@ public class OperationControllerTest {
+ 
+             operationService.addOperation(OperationService.OperationType.ClientOperation, clientOperation, getClient1());
+         }
++        //TODO :> just check that lists equal each other. You may select ordered by date, or just sort them here.
++        // don't need to check pagination, it's on spring's data behalf
+         List<OperationInfo> fullHistory = operationService.getHistoryPage(client1AccountNumber, -1, 0, getClient1());
+         Assert.assertEquals(fullHistory.size(), count);
+         List<OperationInfo> pageHistory = operationService.getHistoryPage(client1AccountNumber, 3, 1, getClient1());

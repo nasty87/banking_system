@@ -6,7 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "operations")
@@ -26,7 +26,7 @@ public class OperationEntity implements Operation{
     @JoinColumn(name = "to_account_id", referencedColumnName = "id", nullable = true)
     private AccountEntity toAccount;
 
-    private Date dateTime;
+    private OffsetDateTime dateTime;
 
     @Column(columnDefinition = "DECIMAL(14,2)")
     private BigDecimal sum;
@@ -40,5 +40,4 @@ public class OperationEntity implements Operation{
     public String getToAccountNumber() {
         return toAccount.getAccountNumber();
     }
-
 }

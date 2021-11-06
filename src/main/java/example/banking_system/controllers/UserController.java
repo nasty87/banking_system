@@ -27,12 +27,6 @@ public class UserController {
     private UserService userService;
 
     @Autowired
-    private UserDao userDao;
-
-    @Autowired
-    private AccountDao accountDao;
-
-    @Autowired
     private JwtProvider jwtProvider;
 
     @Autowired

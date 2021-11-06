@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.OffsetDateTime;
 
 @NoArgsConstructor
 @Getter
@@ -19,8 +19,17 @@ public class AccountDto implements Account{
     @Size(min = 20, max = 20)
     private String accountNumber;
     @PastOrPresent
-    private Date creationDate;
+    private OffsetDateTime creationDate;
     @Min(value = 0, message= "Balance cannot be negative")
     private BigDecimal balance;
+
+    //TODO this like, and use it everywhere
+    public static AccountDto from(Account acc){
+        AccountDto acc_ = new AccountDto();
+        acc_.setAccountNumber(acc.getAccountNumber());
+        acc_.setBalance(acc.getBalance());
+        acc_.setCreationDate(acc.getCreationDate());
+        return acc_;
+    }
 
 }

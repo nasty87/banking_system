@@ -1,154 +1,175 @@
 package example.banking_system.services;
 
-import example.banking_system.controllers.InvalidParameterException;
-import example.banking_system.controllers.NotAllowedException;
-import example.banking_system.controllers.OperationInfo;
+import example.banking_system.controllers.*;
 import example.banking_system.models.*;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Service
+@Log4j2
 public class OperationService {
     @Autowired
-    private UserDao userDao;
-
+    private OperationRepository operationRepository;
     @Autowired
-    private OperationDao operationDao;
-
-    @Autowired
-    private AccountDao accountDao;
-
+    private AccountRepository accountRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ApplicationContext applicationContext;
+    private OperationService operationService;
 
-    public enum OperationType {
-        ClientOperation,
-        BankPut,
-        BankWithdraw
+    @PostConstruct
+    private void init() {
+        operationService = applicationContext.getBean(OperationService.class);
     }
 
-    final static boolean useSelectForUpdate = false;
 
-    @Transactional (isolation = Isolation.REPEATABLE_READ)
-    public void addOperation(OperationType operationType, OperationDto operation, UserEntity currentUser)
-            throws InvalidParameterException, NotAllowedException {
-            AccountEntity fromAccountDb = operation.getFromAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getFromAccountNumber());
-            AccountEntity toAccountDb = operation.getToAccountNumber().isEmpty() ? null : accountDao.findByAccountNumber(operation.getToAccountNumber());
+    public enum OperationType {
+        //TODO please, check https://google.github.io/styleguide/javaguide.html#s4.8.1-enum-classes
+        // And read all that codestyle, which is mostly a standard, and try to follow
+        // DONE
+        CLIENT_OPERATION,
+        BANK_PUT,
+        BANK_WITHDRAW
+    }
 
-            if (fromAccountDb == null || toAccountDb == null) {
-                throw new InvalidParameterException();
+    //TODO => What is this business logic doing in controller again?!
+    // DONE
+    public void addOperation(OperationService.OperationType operationType, OperationDto operation, UserEntity currentUser) {
+        int attemptsCount = 10;
+        do {
+            try {
+                --attemptsCount;
+                operationService.addOperationLogic(operationType, operation, currentUser);
+                return;
             }
-
-            if (((operationType == OperationType.ClientOperation || operationType == OperationType.BankPut)
-                    && fromAccountDb.getUser().getId() != currentUser.getId())
-                    || (operationType == OperationType.BankWithdraw
-                    && toAccountDb.getUser().getId() != currentUser.getId())) {
-                throw new NotAllowedException();
+            catch (InvalidParameterException | NotAllowedException | InsufficientFundsException | EntityNotFoundException e ) {
+                throw e;
             }
-
-            if (operationType != OperationType.BankPut
-            && fromAccountDb.getBalance().compareTo(operation.getSum()) < 0) {
-                throw new InvalidParameterException();
+            catch (Exception e) {
+                // nothing
             }
+        }
+        while(attemptsCount != 0);
+    }
 
-            OperationEntity newOperation = new OperationEntity();
-            newOperation.setDateTime(new Date());
-            newOperation.setFromAccount(fromAccountDb);
-            newOperation.setToAccount(toAccountDb);
-            newOperation.setSum(operation.getSum());
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    public void addOperationLogic(OperationType operationType, OperationDto operation, UserEntity currentUser) {
 
-            if (useSelectForUpdate) {
-                executeOperation(operationType == OperationType.BankPut ? null : fromAccountDb.getId(),
-                        operationType == OperationType.BankWithdraw ? null : toAccountDb.getId(),
-                        operation.getSum());
-            } else {
-                if (operationType != OperationType.BankPut) {
-                    fromAccountDb.setBalance(fromAccountDb.getBalance().subtract(operation.getSum()));
-                }
-                if (operationType != OperationType.BankWithdraw) {
-                    toAccountDb.setBalance(toAccountDb.getBalance().add(operation.getSum()));
-                }
-            }
-            operationDao.addOperation(newOperation);
+        AccountEntity fromAccountDb = operation.getFromAccountNumber().isEmpty() ? null : accountRepository.findByAccountNumber(operation.getFromAccountNumber());
+        AccountEntity toAccountDb = operation.getToAccountNumber().isEmpty() ? null : accountRepository.findByAccountNumber(operation.getToAccountNumber());
+
+        if (fromAccountDb == null || toAccountDb == null) {
+            throw new EntityNotFoundException();
+        }
+
+        if ((operationType != OperationType.BANK_WITHDRAW
+                //TODO check comparisons != vs equals
+                // DONE
+                && !fromAccountDb.getUser().getId().equals(currentUser.getId()))
+                || (operationType == OperationType.BANK_WITHDRAW
+                && !toAccountDb.getUser().getId().equals(currentUser.getId()))) {
+            throw new NotAllowedException();
+        }
+
+        if (operationType != OperationType.BANK_PUT
+                && fromAccountDb.getBalance().compareTo(operation.getSum()) < 0) {
+            //TODO this is definitely not a InvalidParameter, but rather InsufficientFundsException
+            // DONE
+            throw new InsufficientFundsException();
+        }
+
+        OperationEntity newOperation = new OperationEntity();
+        newOperation.setDateTime(operation.getDateTime());
+        newOperation.setFromAccount(fromAccountDb);
+        newOperation.setToAccount(toAccountDb);
+        newOperation.setSum(operation.getSum());
+            //TODO What's the point of separating selectForUpdate logic by this bool config param, while this method is anyway in repeatable_read?
+            // you need to do it then outside of repeatable_read
+            // and make selects for update
+            // DONE I wanted to leave both logic, this parameter is for "conditional compilation", but i found no way to use it for turning off repeatable_read
+            // Now it can be removed
+        if (operationType == OperationType.BANK_WITHDRAW) {
+            fromAccountDb.setBalance(fromAccountDb.getBalance().subtract(operation.getSum()));
+        }
+        else if (operationType == OperationType.BANK_PUT) {
+            toAccountDb.setBalance(toAccountDb.getBalance().add(operation.getSum()));
+        }
+        else {
+            accountRepository.updateBalancesForTwoAccount(fromAccountDb.getId(), fromAccountDb.getBalance().subtract(operation.getSum()),
+                    toAccountDb.getId(), toAccountDb.getBalance().add(operation.getSum()));
+        }
+        operationRepository.save(newOperation);
     }
 
     @Transactional
-    public BigDecimal getBalance(String accountNumber, UserEntity currentUser)
-        throws InvalidParameterException, NotAllowedException {
+    public BigDecimal getBalance(String accountNumber, UserEntity currentUser){
         AccountEntity account = checkCanGetAccountInformation(accountNumber, currentUser);
         return account.getBalance();
     }
 
     @Transactional
-    public List<OperationInfo> getHistoryPage(String accountNumber, int pageNumber, int pageSize, UserEntity currentUser)
-            throws InvalidParameterException, NotAllowedException {
+    public List<OperationDto> getHistoryPage(String accountNumber, int pageNumber, int pageSize, UserEntity currentUser) {
         AccountEntity account = checkCanGetAccountInformation(accountNumber, currentUser);
-        return toOperationInfoList(operationDao.getOperationHistoryPage(account, pageNumber, pageSize));
+        if (pageNumber >= 0) {
+            return toOperationDtoList(operationRepository.getOperationHistory(account.getId(), PageRequest.of(pageNumber, pageSize)));
+        }
+        else {
+            return toOperationDtoList(operationRepository.getOperationHistory(account.getId(), Pageable.unpaged()));
+        }
     }
 
-    protected AccountEntity checkCanGetAccountInformation(String accountNumber, UserEntity currentUser)
-            throws InvalidParameterException, NotAllowedException {
-        AccountEntity accountFromDb = accountDao.findByAccountNumber(accountNumber);
+    //TODO ideally we need an interface for service. And this protected seems superfluous. We aren't really going to extend this, private is fine.
+    // make private, if used only inside this class
+    // DONE
+    private AccountEntity checkCanGetAccountInformation(String accountNumber, UserEntity currentUser) {
+        AccountEntity accountFromDb = accountRepository.findByAccountNumber(accountNumber);
         if (accountFromDb == null) {
-            throw new InvalidParameterException();
+            //TODO Rather entity not found exception here
+            // DONE
+            throw new EntityNotFoundException();
         }
         UserEntity accountUser = accountFromDb.getUser();
-        if (accountUser == null) {
-            throw new InvalidParameterException();
-        }
         if (!userService.userHasBankRole(currentUser) &&
-            currentUser.getId() != accountUser.getId()) {
+                //TODO Please, refresh what is != vs .equals() in Java and how we do comparisons
+                // (*)And try to find out why this check actually worked in your UT
+                // DONE
+                // (*) This is because Java maintains a constant pool for instances of Long between -128 and 127. (https://www.baeldung.com/java-compare-long-values)
+                !currentUser.getId().equals(accountUser.getId())) {
             throw new NotAllowedException();
         }
-        return  accountFromDb;
+        return accountFromDb;
     }
-    protected List<OperationInfo> toOperationInfoList(List<OperationEntity> operations) {
-        List<OperationInfo> res = new ArrayList<>();
-        for (OperationEntity operation: operations) {
-            OperationInfo operationInfo = new OperationInfo();
-            operationInfo.setDate(operation.getDateTime());
-            operationInfo.setFromAccount(operation.getFromAccount().getAccountNumber());
-            operationInfo.setToAccount(operation.getToAccount().getAccountNumber());
-            operationInfo.setSum(operation.getSum());
-            res.add(operationInfo);
+
+    protected List<OperationDto> toOperationDtoList(List<OperationEntity> operations) {
+        List<OperationDto> res = new ArrayList<>();
+        for (OperationEntity operation : operations) {
+            //TODO you might create an interface for these two, OperationDTO, and put in it
+            // public static final from(Operation op){
+            // newOp = new OperationDTO();
+            // ...newOp.set(op.get...);
+            // }
+            // DONE
+            res.add(OperationDto.fromOperation(operation));
         }
         return res;
     }
 
-    public void executeOperation(Long fromAccountId, Long toAccountId, BigDecimal sum) throws InvalidParameterException {
-        System.out.println("executeOperation");
-        BigDecimal fromBalance = null;
-        BigDecimal toBalance = null;
-        if (fromAccountId != null) {
-            fromBalance = accountDao.getBalanceForUpdate(fromAccountId);
-            if (fromBalance.compareTo(sum) < 0) {
-                throw new InvalidParameterException();
-            }
-        }
-        if (toAccountId != null) {
-            toBalance = accountDao.getBalanceForUpdate(toAccountId);
-        }
-        if (fromBalance != null) {
-            accountDao.setBalance(fromAccountId, fromBalance.subtract(sum));
-        }
-        if (toBalance != null) {
-            System.out.println("old balance: " + toBalance);
-            System.out.println("new balance: " + toBalance.add(sum));
-            accountDao.setBalance(toAccountId, toBalance.add(sum));
-        }
-    }
 
-    @Transactional
-    public void clearDataBase() {
-        accountDao.deleteAll();
-        userDao.deleteAll();
-        operationDao.deleteAll();
-    }
+
+
 }

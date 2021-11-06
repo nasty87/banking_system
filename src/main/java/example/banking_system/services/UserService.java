@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserService implements UserDetailsService {
     @Autowired
-    private UserDao userDao;
+    private UserRepository userRepository;
 
     @Autowired
     private RoleDao roleDao;
@@ -23,8 +23,8 @@ public class UserService implements UserDetailsService {
     private PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void saveUser(UserEntity user, String roleName) throws InvalidParameterException {
-        UserEntity userFromDB = userDao.findUserByLogin(user.getUsername());
+    public void saveUser(UserEntity user, String roleName) {
+        UserEntity userFromDB = userRepository.findUserByLogin(user.getUsername());
 
         if (userFromDB != null) {
             throw new InvalidParameterException();
@@ -34,13 +34,13 @@ public class UserService implements UserDetailsService {
             user.setRole(role);
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userDao.addUser(user);
+        userRepository.save(user);
     }
 
     @Transactional
     @Override
     public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
-        UserEntity user = userDao.findUserByLogin(userName);
+        UserEntity user = userRepository.findUserByLogin(userName);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
@@ -48,7 +48,7 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void addUser(UserDto user) throws InvalidParameterException {
+    public void addUser(UserDto user) {
         UserEntity newUser = new UserEntity();
         newUser.setName(user.getName());
         newUser.setLogin(user.getLogin());
@@ -68,7 +68,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserEntity findByLoginAndPassword(String login, String password) throws UsernameNotFoundException {
-        UserEntity user = userDao.findUserByLoginAndPassword(login, password);
+        UserEntity user = userRepository.findUserByLoginAndPassword(login, password);
         if (user == null) {
             throw new UsernameNotFoundException("User not found");
         }
@@ -78,7 +78,10 @@ public class UserService implements UserDetailsService {
     @Transactional
     public UserEntity getCurrentUser() {
         String currentUserName = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userDao.findUserByLogin(currentUserName);
+        //We dont want to make a separate DB call to get user. We would like to get it's ID, and that would be enough.
+        //Hence we need to save ids, not logins in security context. But let's skip this, because setting spring security
+        //correctly might be very hard
+        return userRepository.findUserByLogin(currentUserName);
     }
 
     @Transactional

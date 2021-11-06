@@ -16,4 +16,14 @@ public class OperationControllerAdvice {
     public ResponseEntity<String> handleException(NotAllowedException exception) {
         return new ResponseEntity<>("", HttpStatus.FORBIDDEN);
     }
+
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<String> handleException(InsufficientFundsException exception) {
+        return new ResponseEntity<>("", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<String> handleException(EntityNotFoundException exception) {
+        return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

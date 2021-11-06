@@ -1,4 +1,6 @@
 package example.banking_system.controllers;
 
-public class NotAllowedException extends Exception{
+//TODO consider making it runtime and get rid of unnecessary throws
+// DONE
+public class NotAllowedException extends RuntimeException {
 }

@@ -4,8 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.Date;
-
+import java.time.OffsetDateTime;
 @Entity
 @Table(name = "accounts")
 @NoArgsConstructor
@@ -22,7 +21,7 @@ public class AccountEntity implements Account{
 
     private String accountNumber;
 
-    private Date creationDate;
+    private OffsetDateTime creationDate;
 
     @Column(columnDefinition = "DECIMAL(14,2)")
     private BigDecimal balance;

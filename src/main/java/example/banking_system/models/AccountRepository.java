@@ -12,10 +12,8 @@ public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
     @Query("SELECT a FROM AccountEntity a WHERE a.accountNumber = :accountNumber")
     public AccountEntity findByAccountNumber(@Param("accountNumber") String accountNumber);
 
-    @Query(value = "SELECT balance FROM accounts WHERE id = :id FOR UPDATE", nativeQuery = true)
-    public BigDecimal getBalanceForUpdate(@Param("id") Long id);
-
     @Modifying
-    @Query(value = "UPDATE accounts SET balance = :balance WHERE id = :id", nativeQuery = true)
-    public void setBalance(@Param("id") Long id, @Param("balance") BigDecimal balance);
+    @Query(value = "UPDATE accounts AS a SET balance = i.balance FROM (VALUES (:id1, :balance1), (:id2, :balance2)) as i (id, balance) WHERE i.id=a.id", nativeQuery = true)
+    public void updateBalancesForTwoAccount(@Param("id1") Long firstId, @Param("balance1") BigDecimal firstBalance,
+                                            @Param("id2") Long secondId, @Param("balance2") BigDecimal secondBalance);
 }
