@@ -36,9 +36,8 @@ public class AccountEntity implements Account{
         }
         return id == ((AccountEntity) o).getId();
     }
-    @Override
-    public int hashCode() {
+
+    @Override public int hashCode() {
         return getClass().hashCode();
     }
-
 }

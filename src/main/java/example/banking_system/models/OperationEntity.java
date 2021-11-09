@@ -31,13 +31,11 @@ public class OperationEntity implements Operation{
     @Column(columnDefinition = "DECIMAL(14,2)")
     private BigDecimal sum;
 
-    @Override
-    public String getFromAccountNumber() {
+    @Override public String getFromAccountNumber() {
         return fromAccount.getAccountNumber();
     }
 
-    @Override
-    public String getToAccountNumber() {
+    @Override public String getToAccountNumber() {
         return toAccount.getAccountNumber();
     }
 }

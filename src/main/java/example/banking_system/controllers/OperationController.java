@@ -16,27 +16,24 @@ import java.util.List;
 
 @RestController
 public class OperationController {
-    @Autowired
-    OperationService  operationService;
+    @Autowired OperationService  operationService;
+    @Autowired UserService userService;
 
-    @Autowired
-    UserService userService;
-
-    @Secured(Role.ClientRoleName)
+    @Secured(Role.CLIENT_ROLE_NAME)
     @PostMapping(path = "/clients/operations/add", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void addClientOperation(@NotNull @RequestBody OperationDto operation)
             throws InvalidParameterException, NotAllowedException {
         operationService.addOperation(OperationService.OperationType.CLIENT_OPERATION, operation, userService.getCurrentUser());
     }
 
-    @Secured(Role.BankRoleName)
+    @Secured(Role.BANK_ROLE_NAME)
     @PostMapping(path = "/bank/operations/put", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void addBankOperationPut(@NotNull @RequestBody OperationDto operation)
             throws InvalidParameterException, NotAllowedException {
         operationService.addOperation(OperationService.OperationType.BANK_PUT, operation, userService.getCurrentUser());
     }
 
-    @Secured(Role.BankRoleName)
+    @Secured(Role.BANK_ROLE_NAME)
     @PostMapping(path = "/bank/operations/withdraw", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void addBankOperationWithdraw(@NotNull @RequestBody OperationDto operation)
             throws InvalidParameterException, NotAllowedException {

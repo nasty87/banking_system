@@ -22,21 +22,11 @@ import java.util.List;
 @Service
 @Log4j2
 public class OperationService {
-    @Autowired
-    private OperationRepository operationRepository;
-    @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private ApplicationContext applicationContext;
-    private OperationService operationService;
-
-    @PostConstruct
-    private void init() {
-        operationService = applicationContext.getBean(OperationService.class);
-    }
-
+    @Autowired private OperationRepository operationRepository;
+    @Autowired private AccountRepository accountRepository;
+    @Autowired private UserService userService;
+    @Autowired private ApplicationContext applicationContext;
+    @Autowired private OperationService operationService;
 
     public enum OperationType {
         //TODO please, check https://google.github.io/styleguide/javaguide.html#s4.8.1-enum-classes
@@ -49,7 +39,7 @@ public class OperationService {
 
     //TODO => What is this business logic doing in controller again?!
     // DONE
-    public void addOperation(OperationService.OperationType operationType, OperationDto operation, UserEntity currentUser) {
+    public void addOperation(OperationType operationType, OperationDto operation, UserEntity currentUser) {
         int attemptsCount = 10;
         do {
             try {
@@ -65,6 +55,7 @@ public class OperationService {
             }
         }
         while(attemptsCount != 0);
+        throw new ServerIsBusyException();
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)

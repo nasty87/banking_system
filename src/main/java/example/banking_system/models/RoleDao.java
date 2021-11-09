@@ -6,17 +6,16 @@ import org.springframework.stereotype.Component;
 // I kept this dao because of ensureRoles method
 @Component
 public class RoleDao {
-    @Autowired
-    RoleRepository roleRepository;
+    @Autowired RoleRepository roleRepository;
 
     public void init() {
         ensureRoles();
     }
 
     public void ensureRoles() {
-        roleRepository.save(new Role(1L, Role.AdminRoleName));
-        roleRepository.save(new Role(2L, Role.BankRoleName));
-        roleRepository.save(new Role(3L, Role.ClientRoleName));
+        roleRepository.save(new Role(1L, Role.ADMIN_ROLE_NAME));
+        roleRepository.save(new Role(2L, Role.BANK_ROLE_NAME));
+        roleRepository.save(new Role(3L, Role.CLIENT_ROLE_NAME));
         roleRepository.flush();
     }
 

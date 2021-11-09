@@ -1,6 +1,5 @@
 import example.banking_system.Application;
 import example.banking_system.controllers.InsufficientFundsException;
-import example.banking_system.controllers.InvalidParameterException;
 import example.banking_system.controllers.NotAllowedException;
 import example.banking_system.models.*;
 
@@ -9,7 +8,6 @@ import example.banking_system.services.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
@@ -29,16 +27,11 @@ import java.util.stream.IntStream;
 @AutoConfigureMockMvc
 @Log4j2
 public class OperationServiceTest {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private OperationService operationService;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
-    private OperationRepository operationRepository;
+    @Autowired private UserService userService;
+    @Autowired private OperationService operationService;
+    @Autowired private UserRepository userRepository;
+    @Autowired private AccountRepository accountRepository;
+    @Autowired private OperationRepository operationRepository;
 
     @Transactional
     public void clearDataBase() {
@@ -82,7 +75,7 @@ public class OperationServiceTest {
             bankUser.setName(bankName);
             bankUser.setLogin(bankName);
             bankUser.setPassword("12345");
-            bankUser.setRoleName(Role.BankRoleName);
+            bankUser.setRoleName(Role.BANK_ROLE_NAME);
 
             AccountDto bankAccount = new AccountDto();
             bankAccount.setAccountNumber(bankAccountNumber);
@@ -94,7 +87,7 @@ public class OperationServiceTest {
             clientUser1.setName(client1Name);
             clientUser1.setLogin(client1Name);
             clientUser1.setPassword("12345");
-            clientUser1.setRoleName(Role.ClientRoleName);
+            clientUser1.setRoleName(Role.CLIENT_ROLE_NAME);
 
             AccountDto account1 = new AccountDto();
             account1.setAccountNumber(client1AccountNumber);
@@ -106,7 +99,7 @@ public class OperationServiceTest {
             clientUser2.setName(client2Name);
             clientUser2.setLogin(client2Name);
             clientUser2.setPassword("12345");
-            clientUser2.setRoleName(Role.ClientRoleName);
+            clientUser2.setRoleName(Role.CLIENT_ROLE_NAME);
 
             AccountDto account2 = new AccountDto();
             account2.setAccountNumber(client2AccountNumber);
@@ -178,9 +171,9 @@ public class OperationServiceTest {
 
     @Test
     public void testGetBalance() throws Exception {
-        Assert.assertEquals(operationService.getBalance(client1AccountNumber, getClient1()), startBalance);
-        Assert.assertEquals(operationService.getBalance(client2AccountNumber, getClient2()), startBalance);
         //TODO don't confuse expected and actual arguments
+        Assert.assertEquals(startBalance, operationService.getBalance(client1AccountNumber, getClient1()));
+        Assert.assertEquals(startBalance, operationService.getBalance(client2AccountNumber, getClient2()));
     }
 
     @Test
@@ -195,8 +188,8 @@ public class OperationServiceTest {
 
         operationService.addOperation(OperationService.OperationType.CLIENT_OPERATION, clientOperation, getClient1());
 
-        Assert.assertEquals(operationService.getBalance(client1AccountNumber, getClient1()), startBalance.subtract(sum));
-        Assert.assertEquals(operationService.getBalance(client2AccountNumber, getClient2()), startBalance.add(sum));
+        Assert.assertEquals(startBalance.subtract(sum), operationService.getBalance(client1AccountNumber, getClient1()));
+        Assert.assertEquals(startBalance.add(sum), operationService.getBalance(client2AccountNumber, getClient2()));
         //TODO where do we check that client2 received that sum? And why cast to bigint? What if we got 0.5 miss by the way?
         // DONE
 
@@ -215,7 +208,7 @@ public class OperationServiceTest {
 
         operationService.addOperation(OperationService.OperationType.BANK_PUT, putOperation, getBank());
 
-        Assert.assertEquals(operationService.getBalance(client1AccountNumber, getClient1()), startBalance.add(sum));
+        Assert.assertEquals(startBalance.add(sum), operationService.getBalance(client1AccountNumber, getClient1()));
         //TODO don't confuse expected and actual arguments
     }
 
@@ -231,7 +224,7 @@ public class OperationServiceTest {
 
         operationService.addOperation(OperationService.OperationType.BANK_WITHDRAW, withdrawOperation, getBank());
 
-        Assert.assertEquals(operationService.getBalance(client1AccountNumber, getClient1()), startBalance.subtract(sum));
+        Assert.assertEquals(startBalance.subtract(sum), operationService.getBalance(client1AccountNumber, getClient1()));
         //TODO don't confuse expected and actual arguments
     }
 
@@ -280,7 +273,7 @@ public class OperationServiceTest {
                 .parallel()
                 .forEach(this::addOperationPut);
         BigDecimal sum2 = operationService.getBalance(client1AccountNumber, getBank());
-        Assert.assertEquals(sum2, sum1.add(new BigDecimal(threadCount)));
+        Assert.assertEquals(sum1.add(new BigDecimal(threadCount)), sum2);
         //TODO don't confuse expected and actual arguments
     }
 
@@ -386,9 +379,14 @@ public class OperationServiceTest {
         List<OperationDto> history2 = operationService.getHistoryPage(client2AccountNumber, -1, 0, getClient2());
 
         //TODO вообще непонятно, что тут тогда тестируется. почему тут проверяется история, когда она проверяется в другом месте.
-        Assert.assertEquals(BigDecimal.valueOf(startBalance.longValue() + taskCount/2), operationService.getBalance(client1AccountNumber, getClient1()));
+        // Мы проверяем не историю, а то что баланс соответствует истории. В ситуации c data racing, котрый мы и хотим исключить тестом
+        // такой тест не пройдет, так как операции все будут записаны корректно, а вот балансы не сойдутся
+
+        // А вот этот тест не отрабатывает при большом количестве запросов, потому что на некоторые запросы мы получаем HttpStatus.SERVICE_UNAVAILABLE
+        //Assert.assertEquals(BigDecimal.valueOf(startBalance.longValue() + taskCount/2), operationService.getBalance(client1AccountNumber, getClient1()));
         //TODO а еще мы бомбардируем базу запросами, не возвращая пользователю ответ, успешно ли - такое апи не годится
-//        Assert.assertEquals(calculateSumFromHistory(history2, client2AccountNumber, startBalance), operationService.getBalance(client2AccountNumber, getClient2()));
+        // DONE добавлено исключение
+        Assert.assertEquals(calculateSumFromHistory(history2, client2AccountNumber, startBalance), operationService.getBalance(client2AccountNumber, getClient2()));
 
         //TODO don't confuse expected and actual arguments
         // DONE

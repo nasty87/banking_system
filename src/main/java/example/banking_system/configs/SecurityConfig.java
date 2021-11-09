@@ -25,11 +25,9 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = {"example.banking_system"})
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    @Autowired
-    UserService userService;
+    @Autowired UserService userService;
 
-    @Autowired
-    private JwtFilter jwtFilter;
+    @Autowired private JwtFilter jwtFilter;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

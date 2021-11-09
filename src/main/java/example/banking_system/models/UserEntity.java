@@ -28,28 +28,23 @@ public class UserEntity implements User {
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = true)
     private Role role;
 
-    @Override
-    public String getUsername() {
+    @Override public String getUsername() {
         return login;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
+    @Override public boolean isAccountNonExpired() {
         return true;
     }
 
-    @Override
-    public boolean isAccountNonLocked() {
+    @Override public boolean isAccountNonLocked() {
         return true;
     }
 
-    @Override
-    public boolean isCredentialsNonExpired() {
+    @Override public boolean isCredentialsNonExpired() {
         return true;
     }
 
-    @Override
-    public boolean isEnabled() {
+    @Override public boolean isEnabled() {
         return true;
     }
 
@@ -58,16 +53,13 @@ public class UserEntity implements User {
         List<Role> roles = new ArrayList<>();
         roles.add(getRole());
         return roles;
-
     }
 
-    @Override
-    public String getPassword() {
+    @Override public String getPassword() {
         return password;
     }
 
-    @Override
-    public String getRoleName() {
+    @Override public String getRoleName() {
         return role.getName();
     }
 }

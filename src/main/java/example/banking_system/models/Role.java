@@ -11,12 +11,11 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 public class Role implements GrantedAuthority {
-    public static final String AdminRoleName = "ROLE_ADMIN";
-    public static final String BankRoleName = "ROLE_BANK";
-    public static final String ClientRoleName = "ROLE_CLIENT";
+    public static final String ADMIN_ROLE_NAME = "ROLE_ADMIN";
+    public static final String BANK_ROLE_NAME = "ROLE_BANK";
+    public static final String CLIENT_ROLE_NAME = "ROLE_CLIENT";
 
-    @Id
-    private Long id;
+    @Id private Long id;
 
     private String name;
 
@@ -25,8 +24,7 @@ public class Role implements GrantedAuthority {
         this.name = name;
     }
 
-    @Override
-    public String getAuthority() {
+    @Override public String getAuthority() {
         return name;
     }
 

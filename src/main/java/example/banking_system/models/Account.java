@@ -12,8 +12,4 @@ public interface Account {
 
     public BigDecimal getBalance();
     public void setBalance(BigDecimal balance);
-
-
-
-
 }

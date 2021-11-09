@@ -26,4 +26,9 @@ public class OperationControllerAdvice {
     public ResponseEntity<String> handleException(EntityNotFoundException exception) {
         return new ResponseEntity<>("", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(ServerIsBusyException.class)
+    public ResponseEntity<String> handleException(ServerIsBusyException exception) {
+        return new ResponseEntity<>("", HttpStatus.SERVICE_UNAVAILABLE);
+    }
 }

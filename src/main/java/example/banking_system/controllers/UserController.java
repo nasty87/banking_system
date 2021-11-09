@@ -23,17 +23,12 @@ import javax.validation.constraints.NotNull;
 
 @RestController
 public class UserController {
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private JwtProvider jwtProvider;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    @Autowired private UserService userService;
+    @Autowired private JwtProvider jwtProvider;
+    @Autowired private AuthenticationManager authenticationManager;
 
     @Transactional
-    @Secured(Role.AdminRoleName)
+    @Secured(Role.ADMIN_ROLE_NAME)
     @PostMapping(path = "/users/add", consumes = MediaType.APPLICATION_JSON_VALUE)
     public void addUser(@NotNull @RequestBody UserDto user) throws InvalidParameterException{
         userService.addUser(user);

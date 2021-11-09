@@ -13,14 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService implements UserDetailsService {
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private RoleDao roleDao;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @Autowired private UserRepository userRepository;
+    @Autowired private RoleDao roleDao;
+    @Autowired private PasswordEncoder passwordEncoder;
 
     @Transactional
     public void saveUser(UserEntity user, String roleName) {
@@ -86,7 +81,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public boolean userHasBankRole(UserEntity user) {
-        return user.getRoleName().equals(Role.BankRoleName);
+        return user.getRoleName().equals(Role.BANK_ROLE_NAME);
     }
 
 }

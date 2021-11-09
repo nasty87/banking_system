@@ -18,18 +18,20 @@ public class AccountDto implements Account{
     @NotNull(message = "Account number cannot be null")
     @Size(min = 20, max = 20)
     private String accountNumber;
+
     @PastOrPresent
     private OffsetDateTime creationDate;
+
     @Min(value = 0, message= "Balance cannot be negative")
     private BigDecimal balance;
 
     //TODO this like, and use it everywhere
     public static AccountDto from(Account acc){
-        AccountDto acc_ = new AccountDto();
-        acc_.setAccountNumber(acc.getAccountNumber());
-        acc_.setBalance(acc.getBalance());
-        acc_.setCreationDate(acc.getCreationDate());
-        return acc_;
+        AccountDto res = new AccountDto();
+        res.setAccountNumber(acc.getAccountNumber());
+        res.setBalance(acc.getBalance());
+        res.setCreationDate(acc.getCreationDate());
+        return res;
     }
 
 }
