@@ -103,6 +103,8 @@ public class OperationService {
             // and make selects for update
             // DONE I wanted to leave both logic, this parameter is for "conditional compilation", but i found no way to use it for turning off repeatable_read
             // Now it can be removed
+
+            //You could use programmatical TXs, not needed to use annotation. Or you could create separate method
         if (operationType == OperationType.BANK_WITHDRAW) {
             fromAccountDb.setBalance(fromAccountDb.getBalance().subtract(operation.getSum()));
         }

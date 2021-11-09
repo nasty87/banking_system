@@ -6,6 +6,7 @@ import example.banking_system.models.*;
 
 import example.banking_system.services.OperationService;
 import example.banking_system.services.UserService;
+import lombok.extern.log4j.Log4j2;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -26,6 +27,7 @@ import java.util.stream.IntStream;
 @RunWith(JUnitPlatform.class)
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
+@Log4j2
 public class OperationServiceTest {
     @Autowired
     private UserService userService;
@@ -178,6 +180,7 @@ public class OperationServiceTest {
     public void testGetBalance() throws Exception {
         Assert.assertEquals(operationService.getBalance(client1AccountNumber, getClient1()), startBalance);
         Assert.assertEquals(operationService.getBalance(client2AccountNumber, getClient2()), startBalance);
+        //TODO don't confuse expected and actual arguments
     }
 
     @Test
@@ -196,6 +199,8 @@ public class OperationServiceTest {
         Assert.assertEquals(operationService.getBalance(client2AccountNumber, getClient2()), startBalance.add(sum));
         //TODO where do we check that client2 received that sum? And why cast to bigint? What if we got 0.5 miss by the way?
         // DONE
+
+        //TODO don't confuse expected and actual arguments
     }
 
     @Test
@@ -211,6 +216,7 @@ public class OperationServiceTest {
         operationService.addOperation(OperationService.OperationType.BANK_PUT, putOperation, getBank());
 
         Assert.assertEquals(operationService.getBalance(client1AccountNumber, getClient1()), startBalance.add(sum));
+        //TODO don't confuse expected and actual arguments
     }
 
     @Test
@@ -226,6 +232,7 @@ public class OperationServiceTest {
         operationService.addOperation(OperationService.OperationType.BANK_WITHDRAW, withdrawOperation, getBank());
 
         Assert.assertEquals(operationService.getBalance(client1AccountNumber, getClient1()), startBalance.subtract(sum));
+        //TODO don't confuse expected and actual arguments
     }
 
     @Test
@@ -248,6 +255,7 @@ public class OperationServiceTest {
         List<OperationDto> fullHistory = operationService.getHistoryPage(client1AccountNumber, -1, 0, getClient1());
         Assert.assertTrue(etalonHistory.containsAll(fullHistory) && fullHistory.containsAll(etalonHistory));
     }
+
     public void addOperationPut(int i) {
         OperationDto operationDto = new OperationDto();
         operationDto.setFromAccountNumber(bankAccountNumber);
@@ -273,6 +281,7 @@ public class OperationServiceTest {
                 .forEach(this::addOperationPut);
         BigDecimal sum2 = operationService.getBalance(client1AccountNumber, getBank());
         Assert.assertEquals(sum2, sum1.add(new BigDecimal(threadCount)));
+        //TODO don't confuse expected and actual arguments
     }
 
     public void addOperationWithdraw(int i) {
@@ -330,6 +339,7 @@ public class OperationServiceTest {
         OperationDto operation = (even ? create1to2Operation() : create2o1Operation());
         try {
             operationService.addOperation(OperationService.OperationType.CLIENT_OPERATION, operation, even ? getClient1() : getClient2());
+            log.info("Added operation:" + operation);
         } catch (Exception e) {
             // nothing
         }
@@ -337,11 +347,10 @@ public class OperationServiceTest {
 
     private BigDecimal calculateSumFromHistory(List<OperationDto> history, String accountNumber, BigDecimal startSum) {
         BigDecimal sum = startSum;
-        for (OperationDto operation: history) {
+        for (OperationDto operation : history) {
             if (operation.getFromAccountNumber().equals(accountNumber)) {
                 sum = sum.subtract(operation.getSum());
-            }
-            else if (operation.getToAccountNumber().equals(accountNumber)) {
+            } else if (operation.getToAccountNumber().equals(accountNumber)) {
                 sum = sum.add(operation.getSum());
             }
         }
@@ -376,8 +385,10 @@ public class OperationServiceTest {
         List<OperationDto> history1 = operationService.getHistoryPage(client1AccountNumber, -1, 0, getClient1());
         List<OperationDto> history2 = operationService.getHistoryPage(client2AccountNumber, -1, 0, getClient2());
 
-        Assert.assertEquals(calculateSumFromHistory(history1, client1AccountNumber, startBalance), operationService.getBalance(client1AccountNumber, getClient1()));
-        Assert.assertEquals(calculateSumFromHistory(history2, client2AccountNumber, startBalance), operationService.getBalance(client2AccountNumber, getClient2()));
+        //TODO вообще непонятно, что тут тогда тестируется. почему тут проверяется история, когда она проверяется в другом месте.
+        Assert.assertEquals(BigDecimal.valueOf(startBalance.longValue() + taskCount/2), operationService.getBalance(client1AccountNumber, getClient1()));
+        //TODO а еще мы бомбардируем базу запросами, не возвращая пользователю ответ, успешно ли - такое апи не годится
+//        Assert.assertEquals(calculateSumFromHistory(history2, client2AccountNumber, startBalance), operationService.getBalance(client2AccountNumber, getClient2()));
 
         //TODO don't confuse expected and actual arguments
         // DONE

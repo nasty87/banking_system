@@ -3,6 +3,7 @@ package example.banking_system.models;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -14,6 +15,7 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class OperationDto implements Operation {
     @NotNull(message = "Account number cannot be null")
     @Size(min = 20, max = 20)
