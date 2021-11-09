@@ -1,10 +1,13 @@
 import example.banking_system.Application;
 import example.banking_system.controllers.InsufficientFundsException;
 import example.banking_system.controllers.NotAllowedException;
+import example.banking_system.controllers.ServerIsBusyException;
 import example.banking_system.models.*;
 
 import example.banking_system.services.OperationService;
 import example.banking_system.services.UserService;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.extern.log4j.Log4j2;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,12 +17,15 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.parameters.P;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.*;
 import java.util.stream.IntStream;
 
 @RunWith(JUnitPlatform.class)
@@ -116,7 +122,7 @@ public class OperationServiceTest {
     }
 
     @Test
-    public void testAllowAddOperation() throws Exception {
+    public void testAllowAddOperation() {
         OperationDto putOperation = new OperationDto();
         putOperation.setFromAccountNumber(bankAccountNumber);
         putOperation.setToAccountNumber(client1AccountNumber);
@@ -148,14 +154,14 @@ public class OperationServiceTest {
     }
 
     @Test
-    public void testAllowGetBalance() throws Exception {
+    public void testAllowGetBalance() {
         operationService.getBalance(client1AccountNumber, getClient1());
         operationService.getBalance(client1AccountNumber, getBank());
         Assert.assertThrows(NotAllowedException.class, () -> operationService.getBalance(client1AccountNumber, getClient2()));
     }
 
     @Test
-    public void testAllowGetHistory() throws Exception {
+    public void testAllowGetHistory() {
         OperationDto clientOperation = new OperationDto();
         clientOperation.setFromAccountNumber(client1AccountNumber);
         clientOperation.setToAccountNumber(client2AccountNumber);
@@ -170,14 +176,14 @@ public class OperationServiceTest {
     }
 
     @Test
-    public void testGetBalance() throws Exception {
+    public void testGetBalance() {
         //TODO don't confuse expected and actual arguments
         Assert.assertEquals(startBalance, operationService.getBalance(client1AccountNumber, getClient1()));
         Assert.assertEquals(startBalance, operationService.getBalance(client2AccountNumber, getClient2()));
     }
 
     @Test
-    public void testClientOperation() throws Exception {
+    public void testClientOperation() {
         final BigDecimal sum = BigDecimal.ONE;
 
         OperationDto clientOperation = new OperationDto();
@@ -197,7 +203,7 @@ public class OperationServiceTest {
     }
 
     @Test
-    public void testPutOperation() throws Exception {
+    public void testPutOperation() {
         final BigDecimal sum = BigDecimal.ONE;
 
         OperationDto putOperation = new OperationDto();
@@ -213,7 +219,7 @@ public class OperationServiceTest {
     }
 
     @Test
-    public void testWithdrawOperation() throws Exception {
+    public void testWithdrawOperation() {
         final BigDecimal sum = BigDecimal.ONE;
 
         OperationDto withdrawOperation = new OperationDto();
@@ -229,7 +235,7 @@ public class OperationServiceTest {
     }
 
     @Test
-    public void testHistory() throws Exception {
+    public void testHistory() {
         final int count = 10;
         List<OperationDto> etalonHistory = new ArrayList<>();
         for (int i = 1; i <= count; ++i) {
@@ -351,7 +357,7 @@ public class OperationServiceTest {
     }
 
     @Test
-    public void testClientOperations() throws Exception {
+    public void testClientOperations() {
         //TODO these are not threadCount, but tasks
         //TODO check with this amount(10 or 100) please, and 1-2 retries -> it fails then. When 20 attempts, ok, just increase amount of threadCount to 50, and it will take all the time of earth to finish
 
@@ -386,9 +392,72 @@ public class OperationServiceTest {
         //Assert.assertEquals(BigDecimal.valueOf(startBalance.longValue() + taskCount/2), operationService.getBalance(client1AccountNumber, getClient1()));
         //TODO а еще мы бомбардируем базу запросами, не возвращая пользователю ответ, успешно ли - такое апи не годится
         // DONE добавлено исключение
+        Assert.assertEquals(calculateSumFromHistory(history1, client1AccountNumber, startBalance), operationService.getBalance(client1AccountNumber, getClient1()));
         Assert.assertEquals(calculateSumFromHistory(history2, client2AccountNumber, startBalance), operationService.getBalance(client2AccountNumber, getClient2()));
+        Assert.assertNotEquals(0, history1.size() + history2.size());
 
         //TODO don't confuse expected and actual arguments
         // DONE
+    }
+
+    @Test
+    public void testClientOperations2() throws Exception {
+        @Data
+        class OperationResult {
+
+            private boolean success;
+            private boolean firstToSecond; // false if operation "second client to first"
+        }
+
+        @AllArgsConstructor
+        class AddOperationTask implements Callable<OperationResult> {
+            private int i;
+
+            @Override
+            public OperationResult call() {
+                OperationResult res = new OperationResult();
+                boolean even = (i % 2 == 0);
+                res.setFirstToSecond(even);
+                OperationDto operation = (even ? create1to2Operation() : create2o1Operation());
+                try {
+                    operationService.addOperation(OperationService.OperationType.CLIENT_OPERATION, operation, even ? getClient1() : getClient2());
+                    log.info("Added operation:" + operation);
+                    res.setSuccess(true);
+
+                } catch (Exception e) {
+                    res.setSuccess(false);
+                }
+                return res;
+            }
+        }
+
+        List<AddOperationTask> tasks = new ArrayList<>();
+
+        final int taskCount = 100;
+        for (int i = 0; i < taskCount; ++i) {
+            tasks.add(new AddOperationTask(i));
+        }
+
+        final int threadCount = 10;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        List<Future<OperationResult>> futureList = executorService.invokeAll(tasks);
+
+        int succeeded1to2 = 0;
+        int succeeded2to1 = 0;
+        for (Future<OperationResult> future : futureList) {
+            if (future.get().success) {
+                if (future.get().firstToSecond) {
+                    ++succeeded1to2;
+                } else {
+                    ++succeeded2to1;
+                }
+            }
+        }
+
+        executorService.shutdown();
+
+        Assert.assertNotEquals(0, succeeded1to2 + succeeded2to1);
+        Assert.assertEquals(BigDecimal.valueOf((startBalance.longValue() + succeeded2to1 * 2 - succeeded1to2) * 100, 2),
+                operationService.getBalance(client1AccountNumber, getClient1()));
     }
 }
